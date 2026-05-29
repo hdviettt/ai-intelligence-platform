@@ -29,7 +29,8 @@ Steps A → C of the plan are done. The product works end-to-end:
 | **Backend URL** | https://ai-search-experience-production.up.railway.app |
 | **Frontend URL** | https://frontend-production-b272.up.railway.app |
 | **Railway project** | `ai-search-experience` — **Hoang Duc Viet's Projects** workspace (NOT SEONGON) |
-| **Railway services** | `ai-search-experience` (backend) + `frontend` + `Postgres` — all GitHub-connected |
+| **Admin panel** | https://frontend-production-b272.up.railway.app/admin (not linked from public UI) |
+| **Railway services** | `ai-search-experience` (backend) + `frontend` + `ingest-cron` + `Postgres` — all GitHub-connected |
 | **Database** | PostgreSQL 18.4 + pgvector 0.8.2, host `zephyr.proxy.rlwy.net` |
 | **Local path** | `C:\Users\admin\Desktop\workspace\personal\projects\ai-search-experience` |
 
@@ -114,19 +115,26 @@ Backend auto-deploys from `main`. Last deploy confirmed live (`/trending` = 200)
 
 ---
 
+## Done since last update
+
+- [x] **Frontend deployed** — Dockerfile (oven/bun) build, live + verified.
+- [x] **arXiv backfill** — switched to RSS feeds (no rate limit); 120 papers in.
+- [x] **Railway cron** — `ingest-cron` service, `0 */6 * * *`, runs the shared
+      `app/pipeline.py`. Verified running in Railway's runtime (DB run-log at 10:45).
+- [x] **Control panel** — `/admin` route + `/admin/{stats,runs,ingest}` endpoints.
+      Trigger is token-gated and disabled unless `ADMIN_TOKEN` is set.
+
 ## Open / pending / deferred
 
-- [ ] **Deploy frontend** to Railway (2nd service, root `frontend`,
-      `NEXT_PUBLIC_API_BASE` → backend URL). Deferred by choice.
-- [ ] **arXiv backfill** — rate-limit cooldown active. Connector is fixed +
-      idempotent; `python scripts/ingest.py arxiv` once the ban clears fills papers.
+- [ ] **ADMIN_TOKEN** not yet set on the backend service → the manual trigger
+      button is disabled (returns 503). Set it in Railway to enable on-demand runs.
 - [ ] **Deferred sources** (no working RSS, need HTML scraping): `anthropic-blog`,
       `meta-ai-blog`, `the-batch`.
-- [ ] **Central control panel** — source health, trigger ingests, corpus stats.
-- [ ] **Railway cron** — scheduled ingest+embed (freshness is the product).
 - [ ] **Corpus quality** — some HuggingFace community posts are low-signal; will
       matter once signal-scoring (Phase 3) lands.
+- [ ] **Proper admin auth** (login) before any public launch — token is interim.
 - [ ] **Tighten CORS** before any public launch (currently `*`).
+- [ ] **Flagship: signal-over-hype ranking** (Phase 3 — the real differentiator).
 
 ---
 
