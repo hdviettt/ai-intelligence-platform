@@ -10,11 +10,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.ingest import arxiv, hackernews  # noqa: E402
+from app.ingest import arxiv, hackernews, rss  # noqa: E402
 
 SOURCES = {
     "arxiv": arxiv.run,
     "hackernews": hackernews.run,
+    "rss": rss.run,
 }
 
 
