@@ -17,7 +17,7 @@ Steps A → C of the plan are done. The product works end-to-end:
 
 - **Backend:** live in production, GitHub auto-deploy. Verified over HTTPS.
 - **Corpus:** 147 articles, 6 sources, all embedded (458 chunks).
-- **Frontend:** built + verified locally against the live backend. **Not deployed yet** (your call — "not yet").
+- **Frontend:** **deployed and live** — https://frontend-production-b272.up.railway.app
 
 ---
 
@@ -27,8 +27,9 @@ Steps A → C of the plan are done. The product works end-to-end:
 |-------|-------|
 | **GitHub repo** | `hdviettt/ai-search-experience` (private) |
 | **Backend URL** | https://ai-search-experience-production.up.railway.app |
+| **Frontend URL** | https://frontend-production-b272.up.railway.app |
 | **Railway project** | `ai-search-experience` — **Hoang Duc Viet's Projects** workspace (NOT SEONGON) |
-| **Railway services** | `ai-search-experience` (backend, GitHub-connected) + `Postgres` |
+| **Railway services** | `ai-search-experience` (backend) + `frontend` + `Postgres` — all GitHub-connected |
 | **Database** | PostgreSQL 18.4 + pgvector 0.8.2, host `zephyr.proxy.rlwy.net` |
 | **Local path** | `C:\Users\admin\Desktop\workspace\personal\projects\ai-search-experience` |
 
@@ -57,7 +58,11 @@ Steps A → C of the plan are done. The product works end-to-end:
 - **API** (`app/main.py`): `/search`, `/trending`, `/healthz`.
 
 ### Frontend (`frontend/`) — Next.js 16 + React 19 + Tailwind v4
-Built, production build green, SSR-verified against the live backend. **Local only.**
+**Deployed and live**, SSR-verified rendering live backend results.
+Builds on a **Dockerfile (`oven/bun:1`)**, NOT Railpack — Railpack's mise install
+of bun fails intermittently on Railway's builder (`Connection reset by peer`),
+which caused non-deterministic deploy failures. The Dockerfile bakes bun in.
+Root directory `/frontend`; `NEXT_PUBLIC_API_BASE` → backend URL.
 - Hero "Ask anything" search + example chips (`app/page.tsx`).
 - Search results page (`app/search/page.tsx`) — Server Components, no client waterfall.
 - **AI Overview** block with inline `[n]` citation links (`components/AnswerBlock.tsx`, `Citations.tsx`).
