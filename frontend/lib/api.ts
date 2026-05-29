@@ -92,5 +92,55 @@ export async function getRuns(limit = 20): Promise<RunRow[]> {
   return res.json();
 }
 
-// Trigger is called client-side with the shared-secret token.
+// Trigger and source CRUD are called client-side with the shared-secret token.
 export const ADMIN_BASE = BASE;
+
+export type Source = {
+  id: number;
+  name: string;
+  connector: "rss" | "arxiv" | "hackernews";
+  source_type: "paper" | "release" | "news" | "discussion";
+  config: Record<string, unknown>;
+  max_results: number;
+  enabled: boolean;
+};
+
+export async function getSources(): Promise<Source[]> {
+  const res = await fetch(`${BASE}/admin/sources`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`sources failed: ${res.status}`);
+  return res.json();
+}
+
+function authHeaders(token: string): HeadersInit {
+  return { "Content-Type": "application/json", "X-Admin-Token": token };
+}
+
+export async function createSource(
+  token: string,
+  body: Omit<Source, "id">
+): Promise<Response> {
+  return fetch(`${BASE}/admin/sources`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify(body),
+  });
+}
+
+export async function updateSource(
+  token: string,
+  id: number,
+  patch: Partial<Omit<Source, "id">>
+): Promise<Response> {
+  return fetch(`${BASE}/admin/sources/${id}`, {
+    method: "PATCH",
+    headers: authHeaders(token),
+    body: JSON.stringify(patch),
+  });
+}
+
+export async function deleteSource(token: string, id: number): Promise<Response> {
+  return fetch(`${BASE}/admin/sources/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(token),
+  });
+}

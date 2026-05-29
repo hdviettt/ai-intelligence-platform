@@ -1,29 +1,29 @@
-"""Hacker News connector — recent AI-related stories via the Algolia HN API.
+"""Hacker News connector — recent AI stories via the Algolia HN API.
 
-Public API, no key. Captures the 'discussion' angle of the AI beat; points feed
-the engagement signal used in ranking and, later, hype-vs-signal scoring.
+Config (per ingest_sources row): {"query": "...", "min_points": 5}.
 """
 from datetime import datetime, timezone
 
 import httpx
 
 from app.config import get_settings
-from app.ingest.base import Article, ensure_source, log_run, upsert_articles
+from app.ingest.base import Article, IngestSource
 
-SOURCE = "hackernews"
 API = "https://hn.algolia.com/api/v1/search_by_date"
-QUERY = "AI OR LLM OR GPT OR Claude OR Gemini"
+DEFAULT_QUERY = "AI OR LLM OR GPT OR Claude OR Gemini"
 
 
-def fetch(max_results: int = 50, min_points: int = 5) -> list[Article]:
+def fetch_one(source: IngestSource) -> list[Article]:
     cfg = get_settings()
+    query = source.config.get("query") or DEFAULT_QUERY
+    min_points = int(source.config.get("min_points", 5))
     resp = httpx.get(
         API,
         params={
-            "query": QUERY,
+            "query": query,
             "tags": "story",
             "numericFilters": f"points>{min_points}",
-            "hitsPerPage": max_results,
+            "hitsPerPage": source.max_results,
         },
         timeout=cfg.request_timeout,
         headers={"User-Agent": cfg.user_agent},
@@ -46,8 +46,8 @@ def fetch(max_results: int = 50, min_points: int = 5) -> list[Article]:
                 title=title.strip(),
                 summary=(h.get("story_text") or "").strip()[:2000] or None,
                 author=h.get("author"),
-                source=SOURCE,
-                source_type="discussion",
+                source=source.name,
+                source_type=source.source_type,
                 published_at=published,
                 external_score=float(h.get("points") or 0),
                 raw={"objectID": h.get("objectID"),
@@ -55,24 +55,3 @@ def fetch(max_results: int = 50, min_points: int = 5) -> list[Article]:
             )
         )
     return articles
-
-
-def run(max_results: int = 50) -> tuple[int, int, int]:
-    ensure_source(SOURCE, "discussion", "https://news.ycombinator.com")
-    error = None
-    articles: list[Article] = []
-    inserted = updated = 0
-    try:
-        articles = fetch(max_results=max_results)
-        inserted, updated = upsert_articles(articles)
-    except Exception as exc:  # noqa: BLE001
-        error = repr(exc)
-        raise
-    finally:
-        log_run(SOURCE, len(articles), inserted, updated, error)
-    print(f"[hackernews] fetched={len(articles)} inserted={inserted} updated={updated}")
-    return len(articles), inserted, updated
-
-
-if __name__ == "__main__":
-    run()

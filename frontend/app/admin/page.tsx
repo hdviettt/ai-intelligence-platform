@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getRuns, getStats } from "@/lib/api";
-import { AdminTrigger } from "../components/AdminTrigger";
-import { THEME_STYLES, timeAgo } from "@/lib/format";
+import { SourcesManager } from "../components/SourcesManager";
+import { timeAgo } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -49,78 +49,54 @@ export default async function AdminPage() {
         <StatCard label={`Coverage ${coverage}%`} value={coverage} />
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-2">
-        <div>
-          <h2 className="mb-2.5 text-sm font-semibold text-foreground">
-            By source
-          </h2>
-          <div className="overflow-hidden rounded-xl border border-border">
-            <table className="w-full text-sm">
-              <tbody>
-                {stats.by_source.map((s) => {
-                  const style = THEME_STYLES[s.theme] ?? THEME_STYLES.Other;
-                  return (
-                    <tr key={s.source} className="border-b border-border last:border-0">
-                      <td className="px-3 py-2">
-                        <span className="flex items-center gap-2">
-                          <span className={`h-2 w-2 rounded-full ${style.dot}`} />
-                          {s.source}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 text-xs text-muted">{s.theme}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-foreground">
-                        {s.count}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+      <section className="mt-8">
+        <h2 className="mb-2.5 text-sm font-semibold text-foreground">Sources</h2>
+        <SourcesManager />
+      </section>
 
-          <div className="mt-6">
-            <AdminTrigger />
-          </div>
-        </div>
-
-        <div>
-          <h2 className="mb-2.5 text-sm font-semibold text-foreground">
-            Recent ingest runs
-          </h2>
-          <div className="overflow-hidden rounded-xl border border-border">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border bg-surface text-xs text-muted">
-                  <th className="px-3 py-2 text-left font-medium">Source</th>
-                  <th className="px-3 py-2 text-left font-medium">When</th>
-                  <th className="px-3 py-2 text-right font-medium">+New</th>
+      <section className="mt-8">
+        <h2 className="mb-2.5 text-sm font-semibold text-foreground">
+          Recent ingest runs
+        </h2>
+        <div className="overflow-hidden rounded-xl border border-border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-surface text-xs text-muted">
+                <th className="px-3 py-2 text-left font-medium">Source</th>
+                <th className="px-3 py-2 text-left font-medium">When</th>
+                <th className="px-3 py-2 text-right font-medium">Fetched</th>
+                <th className="px-3 py-2 text-right font-medium">+New</th>
+              </tr>
+            </thead>
+            <tbody>
+              {runs.map((r, i) => (
+                <tr key={i} className="border-b border-border last:border-0">
+                  <td className="px-3 py-2">
+                    {r.error ? (
+                      <span className="text-red-600" title={r.error}>
+                        {r.source} ⚠
+                      </span>
+                    ) : (
+                      r.source
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-xs text-muted">
+                    {timeAgo(r.finished_at)}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums text-muted">
+                    {r.fetched}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums text-foreground">
+                    {r.inserted}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {runs.map((r, i) => (
-                  <tr key={i} className="border-b border-border last:border-0">
-                    <td className="px-3 py-2">
-                      {r.error ? (
-                        <span className="text-red-600">{r.source} ⚠</span>
-                      ) : (
-                        r.source
-                      )}
-                    </td>
-                    <td className="px-3 py-2 text-xs text-muted">
-                      {timeAgo(r.finished_at)}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-foreground">
-                      {r.inserted}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="mt-2 text-xs text-muted">
-            Auto-refreshes every 6h via the scheduled ingest job.
-          </p>
+              ))}
+            </tbody>
+          </table>
         </div>
+        <p className="mt-2 text-xs text-muted">
+          Auto-refreshes every 6h via the scheduled ingest job.
+        </p>
       </section>
     </main>
   );

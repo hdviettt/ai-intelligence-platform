@@ -17,12 +17,12 @@ from app.pipeline import run_pipeline  # noqa: E402
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--max", type=int, default=50)
-    parser.add_argument("--sources", default="", help="comma-separated; default all")
+    parser.add_argument("--max", type=int, default=None, help="override max_results")
+    parser.add_argument("--sources", default="", help="comma-separated source names")
     args = parser.parse_args()
 
-    sources = [s.strip() for s in args.sources.split(",") if s.strip()] or None
-    result = run_pipeline(sources=sources, max_results=args.max)
+    names = [s.strip() for s in args.sources.split(",") if s.strip()] or None
+    result = run_pipeline(names=names, max_override=args.max)
 
     print("=== ingest ===")
     for r in result.ingests:
