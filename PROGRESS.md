@@ -42,18 +42,20 @@ A working product, live on real infrastructure, fed by a real corpus.
 
 | Layer | State |
 |-------|-------|
-| **Ingestion** | 3 connectors (arXiv, Hacker News, RSS) pulling from 6+ sources |
+| **Ingestion** | 3 connectors (arXiv, Hacker News, RSS) over 7 sources, **managed from /admin** |
 | **Corpus** | ~270 articles across all four content themes, fully embedded |
 | **Index** | Postgres FTS (keyword) + pgvector (semantic), 600+ chunks |
 | **Retrieval** | Hybrid search, reciprocal-rank fusion, recency-weighted |
 | **Synthesis** | Cited AI answers (Groq), prompted to surface disagreement |
 | **Surface** | Next.js app — search, themed results, trending rail |
-| **Deploy** | Railway, GitHub auto-deploy, both services live |
-| **Scheduling** | Pipeline built; cron service being wired up |
+| **Deploy** | Railway, GitHub auto-deploy, all services live |
+| **Scheduling** | ✅ Cron every 6h — corpus self-refreshes hands-free |
+| **Control panel** | ✅ /admin — corpus stats, source CRUD, manual trigger |
 
 You can use it today: ask a question, get a cited answer drawing from OpenAI,
 DeepMind, Google, HuggingFace, arXiv and Hacker News, with results grouped into
-Releases / Research / News / Discussion.
+Releases / Research / News / Discussion. And manage the whole corpus — add/edit
+sources, trigger ingests — from the `/admin` cockpit.
 
 ---
 
@@ -108,26 +110,30 @@ and live.
 RSS feeds), a flaky build dependency (moved the frontend to a Docker image so
 deploys are deterministic), encoding and type edge cases.
 
-**7. Automation (in progress).** Extracted a reusable ingest+embed pipeline and
-began wiring a scheduled job so the corpus refreshes itself.
+**7. Automation.** Extracted a reusable ingest+embed pipeline and put it behind a
+6-hour Railway cron — the corpus now refreshes itself, verified running in
+production.
+
+**8. The cockpit.** Made sources *data* (a DB table, not hardcoded), and built an
+`/admin` control panel: corpus stats, source health, add/edit/enable/disable/delete
+sources, and trigger ingests on demand. Adding a feed is now a form, not a deploy.
 
 ---
 
 ## What's next
 
-**Near term — keep it fed and controllable.**
-- [ ] Finish the **scheduled ingestion** cron (every 6h, hands-free refresh).
-- [ ] **Control panel** — one screen to see source health, trigger ingests, and
-      watch corpus stats. The cockpit for running this.
-- [ ] Fill remaining sources (Anthropic, Meta, The Batch) that need scraping.
-- [ ] Tighten security (CORS) before any public push.
-
-**The real bet — the differentiator.**
+**The real bet — the differentiator (start here).**
 - [ ] **Signal-over-hype ranking.** A visible signal score on every item —
       "does this actually change anything?" — and the option to rank by it.
       This is the one-line pitch: *the AI search engine that tells you what
       actually matters.* Opinionated, shareable, and something a neutral
-      aggregator structurally can't ship.
+      aggregator structurally can't ship. Everything to date is foundation;
+      this is the first thing that makes the product *mine*.
+
+**Near term — close the gaps.**
+- [ ] Scraping connector to unlock sources without RSS (Anthropic, Meta, The Batch).
+- [ ] Real auth (login) for /admin — current token is interim.
+- [ ] Tighten CORS before any public push.
 
 **Further out — the understanding layer.**
 - [ ] Story-as-unit: track a claim over time, not as scattered articles.
