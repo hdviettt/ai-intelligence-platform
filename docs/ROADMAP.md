@@ -173,3 +173,41 @@ of the early effort goes, and getting it right is non-negotiable.
 2. **v1 scope** — stop at search surface, or include conversational follow-up?
 3. **Flagship pick** — signal-over-hype (recommended) vs story-as-unit.
 4. **Trending in v1?** — recommended yes.
+
+---
+
+## BUILD LOG — actual state (source of truth)
+
+### Done
+- **Step A — Deploy.** Backend live on Railway, GitHub-connected auto-deploy
+  (`main` → build from `backend/`). Postgres 18 + pgvector 0.8.2 in Viet's
+  personal Railway workspace. Public URL:
+  `https://ai-search-experience-production.up.railway.app` (`/healthz`, `/search`).
+  Vars: `DATABASE_URL=${{Postgres.DATABASE_URL}}`, Voyage + Groq keys.
+- **Step B — Corpus.** ~147 articles, 6 working sources, all embedded (458 chunks):
+  - working: arxiv (paper)*, hackernews (discussion), openai-blog / deepmind /
+    huggingface (release), google-ai / import-ai (news). Generic RSS connector —
+    adding a feed is a one-line registry edit.
+  - *arxiv backfill pending: rate-limit cooldown active. Connector fixed +
+    idempotent; refills papers once the ban clears.
+
+### Decisions locked
+- **Control space** (admin: source health, trigger/schedule ingests, corpus
+  stats): build **after Step C**, as a route in the same Next.js app.
+- **Scheduling**: **yes — Railway cron** service running ingest+embed on a
+  schedule. Freshness is the product.
+
+### Deferred / TODO
+- [ ] arXiv paper backfill once rate-limit clears.
+- [ ] RSS feeds with no working URL yet (need HTML scraping): anthropic-blog,
+      meta-ai-blog, the-batch.
+- [ ] Railway cron service for scheduled ingest+embed.
+- [ ] Central control panel (after Step C).
+- [ ] Corpus quality: some HuggingFace community posts are low-signal — a filter
+      or per-source weighting will matter once signal-scoring (Phase 3) lands.
+
+### Next: Step C — public search surface (Phase 2 frontend)
+Next.js 16 app. Design DNA from the three references:
+- Web Guide → results clustered into AI-generated themes.
+- AI Mode → "Ask anything" input, cited answer block on top.
+- Baidu 热搜 → trending rail (daily-habit hook).
