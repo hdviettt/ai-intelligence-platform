@@ -1,8 +1,8 @@
-"""arXiv connector — recent papers from the AI categories.
+"""arXiv connector — recent papers from the AI categories via the RSS feeds.
 
-Uses the public arXiv Atom API. No key required.
+Uses rss.arxiv.org, which is not rate-limited (unlike the export.arxiv.org API,
+which throttles aggressively) and returns full abstracts. One feed per category.
 """
-import time
 from datetime import datetime, timezone
 
 import feedparser
@@ -18,27 +18,27 @@ from app.config import get_settings
 from app.ingest.base import Article, ensure_source, log_run, upsert_articles
 
 SOURCE = "arxiv"
-API = "https://export.arxiv.org/api/query"
-CATEGORIES = ["cs.AI", "cs.LG", "cs.CL", "cs.CV", "cs.MA"]
+CATEGORIES = ["cs.AI", "cs.LG", "cs.CL"]
+FEED = "https://rss.arxiv.org/rss/{cat}"
 
 
-def _to_dt(struct_time) -> datetime | None:
-    if not struct_time:
-        return None
-    return datetime(*struct_time[:6], tzinfo=timezone.utc)
+def _to_dt(entry) -> datetime | None:
+    st = entry.get("published_parsed") or entry.get("updated_parsed")
+    if st:
+        return datetime(*st[:6], tzinfo=timezone.utc)
+    return None
 
 
 @retry(
     retry=retry_if_exception_type((httpx.HTTPStatusError, httpx.TransportError)),
-    wait=wait_exponential(multiplier=3, min=3, max=30),
-    stop=stop_after_attempt(5),
+    wait=wait_exponential(multiplier=2, min=2, max=20),
+    stop=stop_after_attempt(4),
     reraise=True,
 )
 def _get(url: str, cfg) -> httpx.Response:
-    # arXiv asks for ~3s between requests; be a polite citizen up front.
-    time.sleep(3)
     resp = httpx.get(
-        url, timeout=60.0, headers={"User-Agent": cfg.user_agent}
+        url, timeout=45.0, follow_redirects=True,
+        headers={"User-Agent": cfg.user_agent},
     )
     resp.raise_for_status()
     return resp
@@ -46,35 +46,38 @@ def _get(url: str, cfg) -> httpx.Response:
 
 def fetch(max_results: int = 50) -> list[Article]:
     cfg = get_settings()
-    query = "+OR+".join(f"cat:{c}" for c in CATEGORIES)
-    url = (
-        f"{API}?search_query={query}"
-        f"&sortBy=submittedDate&sortOrder=descending"
-        f"&start=0&max_results={max_results}"
-    )
-    resp = _get(url, cfg)
-    feed = feedparser.parse(resp.text)
-
+    per_cat = max(1, max_results // len(CATEGORIES))
+    seen: set[str] = set()
     articles: list[Article] = []
-    for e in feed.entries:
-        authors = ", ".join(a.get("name", "") for a in e.get("authors", []))
-        abstract = (e.get("summary") or "").replace("\n", " ").strip()
-        articles.append(
-            Article(
-                url=e.get("link"),
-                title=(e.get("title") or "").replace("\n", " ").strip(),
-                summary=abstract,
-                body=abstract,  # papers: abstract is the body we index/chunk
-                author=authors or None,
-                source=SOURCE,
-                source_type="paper",
-                published_at=_to_dt(e.get("published_parsed")),
-                raw={
-                    "id": e.get("id"),
-                    "tags": [t.get("term") for t in e.get("tags", [])],
-                },
+
+    for cat in CATEGORIES:
+        resp = _get(FEED.format(cat=cat), cfg)
+        feed = feedparser.parse(resp.text)
+        for e in feed.entries[:per_cat]:
+            link = e.get("link")
+            if not link or link in seen:
+                continue
+            seen.add(link)
+            # RSS description is "arXiv:ID Announce Type: new\nAbstract: ..."
+            desc = (e.get("summary") or "")
+            abstract = desc.split("Abstract:", 1)[-1].replace("\n", " ").strip()
+            authors = e.get("author") or ", ".join(
+                a.get("name", "") for a in e.get("authors", [])
             )
-        )
+            articles.append(
+                Article(
+                    url=link,
+                    title=(e.get("title") or "").replace("\n", " ").strip(),
+                    summary=abstract or None,
+                    body=abstract or None,
+                    author=authors or None,
+                    source=SOURCE,
+                    source_type="paper",
+                    published_at=_to_dt(e),
+                    raw={"id": e.get("id"), "category": cat,
+                         "announce_type": e.get("arxiv_announce_type")},
+                )
+            )
     return articles
 
 
