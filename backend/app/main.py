@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from app import discovery, retrieval, synthesis
+from app.admin import router as admin_router
 
 app = FastAPI(title="ai-search-experience")
 
@@ -13,6 +14,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(admin_router)
 
 
 class ResultOut(BaseModel):

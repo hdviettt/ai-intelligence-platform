@@ -58,3 +58,39 @@ export async function getTrending(limit = 10): Promise<Trending[]> {
   if (!res.ok) throw new Error(`trending failed: ${res.status}`);
   return res.json();
 }
+
+// --- Admin / control panel ---
+
+export type CorpusStats = {
+  total: number;
+  embedded: number;
+  chunks: number;
+  by_source: { source: string; type: string; theme: string; count: number }[];
+  by_theme: { theme: string; count: number }[];
+};
+
+export type RunRow = {
+  source: string;
+  finished_at: string | null;
+  fetched: number;
+  inserted: number;
+  updated: number;
+  error: string | null;
+};
+
+export async function getStats(): Promise<CorpusStats> {
+  const res = await fetch(`${BASE}/admin/stats`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`stats failed: ${res.status}`);
+  return res.json();
+}
+
+export async function getRuns(limit = 20): Promise<RunRow[]> {
+  const res = await fetch(`${BASE}/admin/runs?limit=${limit}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`runs failed: ${res.status}`);
+  return res.json();
+}
+
+// Trigger is called client-side with the shared-secret token.
+export const ADMIN_BASE = BASE;

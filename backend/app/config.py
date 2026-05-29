@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     user_agent: str = "ai-search-experience/0.1 (+https://github.com/hdviettt/ai-search-experience)"
     request_timeout: float = 30.0
 
+    # Admin — the trigger endpoint is disabled unless this is set (safe default).
+    admin_token: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:
