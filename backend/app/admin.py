@@ -132,7 +132,8 @@ def coverage(by: str = "year") -> list[CoveragePoint]:
     with get_connection() as conn:
         rows = conn.execute(
             f"SELECT to_char(date_trunc('{unit}', published_at), '{fmt}') AS period, "
-            "count(*) FROM articles WHERE published_at IS NOT NULL "
+            "count(*) FROM articles "
+            "WHERE published_at >= '2000-01-01' AND published_at <= now() "
             "GROUP BY 1 ORDER BY 1",
         ).fetchall()
     return [CoveragePoint(period=p, count=n) for p, n in rows]
