@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getPersonas } from "@/lib/api";
+import { getPersonas, type Persona } from "@/lib/api";
 import { SearchBar } from "./components/SearchBar";
 import { TrendingRail } from "./components/TrendingRail";
 import { CorpusStrip } from "./components/CorpusStrip";
@@ -22,7 +22,7 @@ export default async function Home({
   searchParams: Promise<{ persona?: string }>;
 }) {
   const { persona = "ceo" } = await searchParams;
-  let personas;
+  let personas: Persona[] = [];
   try {
     personas = await getPersonas();
   } catch {
