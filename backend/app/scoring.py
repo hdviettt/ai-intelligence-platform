@@ -6,11 +6,22 @@ Resumable: only scores articles missing a substance score. Persona signal
 """
 import json
 import math
+import time
 from dataclasses import dataclass
+
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from app.config import get_settings
 from app.db import get_connection
 from app.personas import Persona, list_personas
+
+# Groq rate-limits bursts. Pace between calls and back off hard on 429.
+SCORE_DELAY = 1.2  # seconds between scoring calls
 
 # Persona-independent rubric. Concrete, low-temperature, JSON out.
 RUBRIC = (
@@ -69,6 +80,17 @@ def _schema_hint(personas: list[Persona]) -> str:
             '"hype_markers":0-10,"personas":{' + pj + "}}")
 
 
+def _is_rate_limit(exc: Exception) -> bool:
+    return exc.__class__.__name__ in ("RateLimitError", "APIStatusError") or \
+        "429" in str(exc) or "rate" in str(exc).lower()
+
+
+@retry(
+    retry=retry_if_exception_type(Exception),
+    wait=wait_exponential(multiplier=4, min=4, max=60),
+    stop=stop_after_attempt(5),
+    reraise=True,
+)
 def _judge(title: str, summary: str, personas: list[Persona]) -> Score:
     from groq import Groq
 
@@ -143,6 +165,7 @@ def score_pending(limit: int | None = None, order: str = "recent") -> int:
         if summary and len(summary) > len(text):
             text = summary
         text = text[:4000]
+        time.sleep(SCORE_DELAY)  # pace to stay under Groq's burst limit
         try:
             sc = _judge(title or "", text, personas)
         except Exception as exc:  # noqa: BLE001 — skip a bad item, keep going
