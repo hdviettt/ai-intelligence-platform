@@ -65,6 +65,29 @@ articles) so backfill and cron both work.
 Then adding Developer / Marketer / Ecommerce / Creative = write another persona
 config row. That's the scalable payoff.
 
+## Status (2026-05-31)
+
+DONE — Phases 1-3 shipped and live:
+- Persona config + `personas` table, seeded with `ceo`.
+- Signal judge (`app/scoring.py`): substance (persona-independent) + relevance/angle
+  (per-persona) in one call. Validated + tuned (strict relevance scale,
+  relevance-led ranking, scoped hype_gap, free-text enrichment for thin items).
+- Provider: Groq (free tier) OR Claude Haiku (`scoring_provider`, default anthropic).
+- Feed (`app/feed.py`) + `/personas`, `/feed?persona=` endpoints.
+- UI: PersonaSwitcher, PersonaFeed (leads with "Why it matters: <angle>"),
+  SignalBadge (tier + hype/underrated markers). Home is now a persona destination.
+
+BLOCKED — corpus not fully scored:
+- Only ~45 / 3,953 articles scored, so the feed is intentionally thin.
+- Groq free tier (12k TPM, 1k req/day) can't bulk-score without an ~11h crawl.
+- The `ANTHROPIC_API_KEY` in `.env.local` returns 401 (invalid) — Haiku path can't
+  auth until a valid key is in place (env + Railway services backend & ingest-cron).
+- To resume backfill: fix a provider, then `python scripts/backfill_scores.py`
+  (enriches thin items, then scores; paced + resumable). Cron also scores new items.
+
+NOT done: source-authority calibration loop; corroboration clustering; more personas
+(each = one `personas` row once scoring scales).
+
 ## Risks (named)
 
 - **Persona definition is the new ground truth** — authored, not measured. It's the
