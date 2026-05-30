@@ -91,6 +91,59 @@ def runs(limit: int = 20) -> list[RunRow]:
     ]
 
 
+# --- corpus growth over time (open) ---
+
+class GrowthPoint(BaseModel):
+    finished_at: str
+    total: int
+    chunks: int
+
+
+@router.get("/growth", response_model=list[GrowthPoint])
+def growth(limit: int = 60) -> list[GrowthPoint]:
+    """Corpus size at each recorded trigger, oldest -> newest (for the chart)."""
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT finished_at, total_after, chunks_after FROM pipeline_runs "
+            "WHERE finished_at IS NOT NULL ORDER BY id DESC LIMIT %s", (limit,),
+        ).fetchall()
+    return [
+        GrowthPoint(finished_at=str(fin), total=tot or 0, chunks=ch or 0)
+        for fin, tot, ch in reversed(rows)
+    ]
+
+
+class PipelineRunOut(BaseModel):
+    trigger: str
+    finished_at: str | None
+    total_before: int
+    total_after: int
+    inserted: int
+    updated: int
+    embedded: int
+    per_source: list[dict]
+
+
+@router.get("/pipeline-runs", response_model=list[PipelineRunOut])
+def pipeline_runs(limit: int = 20) -> list[PipelineRunOut]:
+    """Each trigger as a batch: size delta + what each source contributed."""
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT trigger, finished_at, total_before, total_after, inserted, "
+            "updated, embedded, per_source FROM pipeline_runs "
+            "ORDER BY id DESC LIMIT %s", (limit,),
+        ).fetchall()
+    out = []
+    for trig, fin, tb, ta, ins, upd, emb, per in rows:
+        per_list = per if isinstance(per, list) else []
+        out.append(PipelineRunOut(
+            trigger=trig, finished_at=str(fin) if fin else None,
+            total_before=tb or 0, total_after=ta or 0, inserted=ins or 0,
+            updated=upd or 0, embedded=emb or 0, per_source=per_list,
+        ))
+    return out
+
+
 # --- source registry (read open; writes token-gated) ---
 
 class SourceOut(BaseModel):
@@ -188,7 +241,8 @@ def trigger(body: TriggerIn | None = None,
             x_admin_token: str = Header(default="")) -> TriggerResult:
     _require_admin(x_admin_token)
     body = body or TriggerIn()
-    result = pipeline.run_pipeline(names=body.sources, max_override=body.max_results)
+    result = pipeline.run_pipeline(names=body.sources, max_override=body.max_results,
+                                   trigger="admin")
     return TriggerResult(
         ok=True,
         sources=[asdict(i) for i in result.ingests],

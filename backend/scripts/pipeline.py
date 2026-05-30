@@ -22,7 +22,7 @@ def main() -> None:
     args = parser.parse_args()
 
     names = [s.strip() for s in args.sources.split(",") if s.strip()] or None
-    result = run_pipeline(names=names, max_override=args.max)
+    result = run_pipeline(names=names, max_override=args.max, trigger="cron")
 
     print("=== ingest ===")
     for r in result.ingests:

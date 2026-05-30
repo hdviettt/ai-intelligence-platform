@@ -4,8 +4,10 @@ One code path shared by the CLI, the cron job, and the admin trigger. Sources ar
 data (managed from /admin); this module just loads enabled rows, dispatches each
 to its connector, then embeds whatever is new.
 """
+import json
 import time
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 
 from app.db import get_connection
 from app.embed import chunk_text, embed
@@ -41,6 +43,9 @@ class IngestResult:
 class PipelineResult:
     ingests: list[IngestResult] = field(default_factory=list)
     embedded: int = 0
+    total_before: int = 0
+    total_after: int = 0
+    chunks_after: int = 0
 
     @property
     def total_inserted(self) -> int:
@@ -131,9 +136,41 @@ def embed_pending() -> int:
     return done
 
 
-def run_pipeline(names: list[str] | None = None,
-                 max_override: int | None = None) -> PipelineResult:
-    """Full refresh: ingest the (enabled) sources, then embed what's new."""
+def _count(conn, table: str) -> int:
+    return conn.execute(f"SELECT count(*) FROM {table}").fetchone()[0]
+
+
+def run_pipeline(names: list[str] | None = None, max_override: int | None = None,
+                 trigger: str = "manual") -> PipelineResult:
+    """Full refresh: ingest the (enabled) sources, then embed what's new.
+
+    Records a `pipeline_runs` row capturing corpus size before/after and the
+    per-source breakdown, so /admin can show growth over time."""
+    started = datetime.now(timezone.utc)
+    with get_connection() as conn:
+        total_before = _count(conn, "articles")
+
     ingests = run_ingest(names, max_override=max_override)
     embedded = embed_pending()
-    return PipelineResult(ingests=ingests, embedded=embedded)
+
+    with get_connection() as conn:
+        total_after = _count(conn, "articles")
+        chunks_after = _count(conn, "chunks")
+
+    inserted = sum(i.inserted for i in ingests)
+    updated = sum(i.updated for i in ingests)
+    per_source = [asdict(i) for i in ingests]
+
+    with get_connection() as conn:
+        conn.execute(
+            "INSERT INTO pipeline_runs (trigger, started_at, finished_at, "
+            "total_before, total_after, inserted, updated, embedded, chunks_after, "
+            "per_source) VALUES (%s, %s, now(), %s, %s, %s, %s, %s, %s, %s)",
+            (trigger, started, total_before, total_after, inserted, updated,
+             embedded, chunks_after, json.dumps(per_source)),
+        )
+        conn.commit()
+
+    return PipelineResult(ingests=ingests, embedded=embedded,
+                          total_before=total_before, total_after=total_after,
+                          chunks_after=chunks_after)

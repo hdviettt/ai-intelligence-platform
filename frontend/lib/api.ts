@@ -92,6 +92,47 @@ export async function getRuns(limit = 20): Promise<RunRow[]> {
   return res.json();
 }
 
+export type GrowthPoint = {
+  finished_at: string;
+  total: number;
+  chunks: number;
+};
+
+export async function getGrowth(limit = 60): Promise<GrowthPoint[]> {
+  const res = await fetch(`${BASE}/admin/growth?limit=${limit}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`growth failed: ${res.status}`);
+  return res.json();
+}
+
+export type PerSource = {
+  source: string;
+  fetched: number;
+  inserted: number;
+  updated: number;
+  error: string | null;
+};
+
+export type PipelineRun = {
+  trigger: string;
+  finished_at: string | null;
+  total_before: number;
+  total_after: number;
+  inserted: number;
+  updated: number;
+  embedded: number;
+  per_source: PerSource[];
+};
+
+export async function getPipelineRuns(limit = 20): Promise<PipelineRun[]> {
+  const res = await fetch(`${BASE}/admin/pipeline-runs?limit=${limit}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`pipeline-runs failed: ${res.status}`);
+  return res.json();
+}
+
 // Trigger and source CRUD are called client-side with the shared-secret token.
 export const ADMIN_BASE = BASE;
 

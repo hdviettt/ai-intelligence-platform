@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { getRuns, getStats } from "@/lib/api";
+import { getGrowth, getPipelineRuns, getRuns, getStats } from "@/lib/api";
+import { GrowthChart } from "../components/GrowthChart";
+import { PipelineRuns } from "../components/PipelineRuns";
 import { SourcesManager } from "../components/SourcesManager";
 import { timeAgo } from "@/lib/format";
 
@@ -17,9 +19,14 @@ function StatCard({ label, value }: { label: string; value: number }) {
 }
 
 export default async function AdminPage() {
-  let stats, runs;
+  let stats, runs, growth, pipelineRuns;
   try {
-    [stats, runs] = await Promise.all([getStats(), getRuns(20)]);
+    [stats, runs, growth, pipelineRuns] = await Promise.all([
+      getStats(),
+      getRuns(20),
+      getGrowth(60),
+      getPipelineRuns(20),
+    ]);
   } catch {
     return (
       <main className="mx-auto max-w-4xl px-6 py-16">
@@ -50,8 +57,22 @@ export default async function AdminPage() {
       </section>
 
       <section className="mt-8">
+        <h2 className="mb-2.5 text-sm font-semibold text-foreground">
+          Corpus growth
+        </h2>
+        <GrowthChart points={growth} />
+      </section>
+
+      <section className="mt-8">
         <h2 className="mb-2.5 text-sm font-semibold text-foreground">Sources</h2>
         <SourcesManager />
+      </section>
+
+      <section className="mt-8">
+        <h2 className="mb-2.5 text-sm font-semibold text-foreground">
+          What each trigger changed
+        </h2>
+        <PipelineRuns runs={pipelineRuns} />
       </section>
 
       <section className="mt-8">
