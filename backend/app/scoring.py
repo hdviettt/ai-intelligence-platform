@@ -20,8 +20,9 @@ from app.config import get_settings
 from app.db import get_connection
 from app.personas import Persona, list_personas
 
-# Groq rate-limits bursts. Pace between calls and back off hard on 429.
-SCORE_DELAY = 1.2  # seconds between scoring calls
+# Pacing between scoring calls. Anthropic Haiku has generous limits; modest pacing
+# plus retry/backoff keeps us safely under whatever tier is active.
+SCORE_DELAY = 1.0  # seconds between scoring calls
 
 # Persona-independent rubric. Concrete, low-temperature, JSON out.
 RUBRIC = (
@@ -85,29 +86,20 @@ def _is_rate_limit(exc: Exception) -> bool:
         "429" in str(exc) or "rate" in str(exc).lower()
 
 
-@retry(
-    retry=retry_if_exception_type(Exception),
-    wait=wait_exponential(multiplier=4, min=4, max=60),
-    stop=stop_after_attempt(5),
-    reraise=True,
-)
-def _judge(title: str, summary: str, personas: list[Persona]) -> Score:
-    from groq import Groq
-
-    cfg = get_settings()
-    client = Groq(api_key=cfg.groq_api_key)
-    prompt = (
+def _prompt(title: str, summary: str, personas: list[Persona]) -> str:
+    return (
         f"{RUBRIC}\n\nPersonas:\n{_persona_block(personas)}\n\n"
         f"Return exactly this shape:\n{_schema_hint(personas)}\n\n"
         f"ITEM:\nTitle: {title}\nText: {summary or '(no summary)'}"
     )
-    resp = client.chat.completions.create(
-        model=cfg.groq_model,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0,
-        response_format={"type": "json_object"},
-    )
-    data = json.loads(resp.choices[0].message.content)
+
+
+def _parse(raw: str) -> Score:
+    # Tolerate models that wrap JSON in prose/fences.
+    s = raw.strip()
+    if "{" in s:
+        s = s[s.index("{"): s.rindex("}") + 1]
+    data = json.loads(s)
     return Score(
         novelty=float(data.get("novelty", 0)),
         evidence=float(data.get("evidence", 0)),
@@ -115,6 +107,48 @@ def _judge(title: str, summary: str, personas: list[Persona]) -> Score:
         hype_markers=float(data.get("hype_markers", 0)),
         personas=data.get("personas", {}),
     )
+
+
+def _judge_anthropic(prompt: str, cfg) -> Score:
+    import anthropic
+
+    client = anthropic.Anthropic(api_key=cfg.anthropic_api_key)
+    msg = client.messages.create(
+        model=cfg.anthropic_model,
+        max_tokens=1024,
+        temperature=0,
+        system="You output only valid JSON, no prose, no code fences.",
+        messages=[{"role": "user", "content": prompt}],
+    )
+    text = "".join(b.text for b in msg.content if b.type == "text")
+    return _parse(text)
+
+
+def _judge_groq(prompt: str, cfg) -> Score:
+    from groq import Groq
+
+    client = Groq(api_key=cfg.groq_api_key)
+    resp = client.chat.completions.create(
+        model=cfg.groq_model,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0,
+        response_format={"type": "json_object"},
+    )
+    return _parse(resp.choices[0].message.content)
+
+
+@retry(
+    retry=retry_if_exception_type(Exception),
+    wait=wait_exponential(multiplier=3, min=2, max=45),
+    stop=stop_after_attempt(5),
+    reraise=True,
+)
+def _judge(title: str, summary: str, personas: list[Persona]) -> Score:
+    cfg = get_settings()
+    prompt = _prompt(title, summary, personas)
+    if cfg.scoring_provider == "anthropic" and cfg.anthropic_api_key:
+        return _judge_anthropic(prompt, cfg)
+    return _judge_groq(prompt, cfg)
 
 
 def _hype_gap(engagement: float, substance: float, max_eng: float) -> float | None:

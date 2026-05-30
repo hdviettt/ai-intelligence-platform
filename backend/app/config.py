@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     anthropic_model: str = "claude-haiku-4-5-20251001"
     synthesis_provider: str = "groq"  # "groq" | "anthropic"
 
+    # Signal judge — Anthropic (Haiku) for backfill: higher rate limits + sharper
+    # persona judgment. Groq remains a fallback.
+    scoring_provider: str = "anthropic"  # "anthropic" | "groq"
+
     # Ingestion
     user_agent: str = "ai-search-experience/0.1 (+https://github.com/hdviettt/ai-search-experience)"
     request_timeout: float = 30.0
