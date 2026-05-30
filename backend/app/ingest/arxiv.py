@@ -84,7 +84,10 @@ def _fetch_rss(source: IngestSource, categories: list[str], cfg) -> list[Article
 
 
 def _fetch_export(source: IngestSource, categories: list[str], cfg) -> list[Article]:
-    """Deep paginated pull from the export API. Splits the budget per category."""
+    """Deep paginated pull from the export API. Splits the budget per category.
+
+    arXiv's export API is frequently slow / 503 / times out. A failure on one
+    category is logged and skipped so the rest (and the run) still proceed."""
     per_cat = max(PAGE, source.max_results // len(categories))
     seen: set[str] = set()
     out: list[Article] = []
@@ -100,7 +103,11 @@ def _fetch_export(source: IngestSource, categories: list[str], cfg) -> list[Arti
                 "max_results": min(PAGE, per_cat - got),
             }
             time.sleep(ARXIV_DELAY)
-            resp = _get(EXPORT_API, cfg, params=params)
+            try:
+                resp = _get(EXPORT_API, cfg, params=params)
+            except Exception as exc:  # noqa: BLE001 — 503/timeout: skip this category
+                print(f"[arxiv] {cat} export failed ({type(exc).__name__}); skipping")
+                break
             feed = feedparser.parse(resp.text)
             if not feed.entries:
                 break
@@ -117,8 +124,17 @@ def _fetch_export(source: IngestSource, categories: list[str], cfg) -> list[Arti
 
 
 def fetch_one(source: IngestSource) -> list[Article]:
+    """Try the deep export pull for big requests; if it yields nothing (arXiv
+    down / weekend), fall back to the RSS feeds. RSS is empty on weekends, so on a
+    bad day this returns [] and the next cron run picks papers up — never errors."""
     cfg = get_settings()
     categories = source.config.get("categories") or DEFAULT_CATEGORIES
     if source.max_results <= 100:
         return _fetch_rss(source, categories, cfg)
-    return _fetch_export(source, categories, cfg)
+    articles = _fetch_export(source, categories, cfg)
+    if not articles:
+        try:
+            articles = _fetch_rss(source, categories, cfg)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[arxiv] RSS fallback failed ({type(exc).__name__})")
+    return articles
