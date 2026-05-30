@@ -96,6 +96,8 @@ export type GrowthPoint = {
   finished_at: string;
   total: number;
   chunks: number;
+  distinct_sources: number;
+  themes: Record<string, number>;
 };
 
 export async function getGrowth(limit = 60): Promise<GrowthPoint[]> {
@@ -130,6 +132,24 @@ export async function getPipelineRuns(limit = 20): Promise<PipelineRun[]> {
     cache: "no-store",
   });
   if (!res.ok) throw new Error(`pipeline-runs failed: ${res.status}`);
+  return res.json();
+}
+
+export type CoveragePoint = { period: string; count: number };
+
+export async function getCoverage(by: "year" | "month" = "year"): Promise<CoveragePoint[]> {
+  const res = await fetch(`${BASE}/admin/coverage?by=${by}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`coverage failed: ${res.status}`);
+  return res.json();
+}
+
+export type TopSource = { source: string; theme: string; count: number };
+
+export async function getTopSources(limit = 12): Promise<TopSource[]> {
+  const res = await fetch(`${BASE}/admin/top-sources?limit=${limit}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`top-sources failed: ${res.status}`);
   return res.json();
 }
 

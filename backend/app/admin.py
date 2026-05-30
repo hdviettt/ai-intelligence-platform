@@ -118,6 +118,43 @@ def growth(limit: int = 60) -> list[GrowthPoint]:
     ]
 
 
+class CoveragePoint(BaseModel):
+    period: str       # "2008", "2024-11", etc.
+    count: int
+
+
+@router.get("/coverage", response_model=list[CoveragePoint])
+def coverage(by: str = "year") -> list[CoveragePoint]:
+    """How the corpus covers time, by article publication date. The real depth
+    story (corpus spans ~2008-now), not a flat trigger line."""
+    unit = "month" if by == "month" else "year"
+    fmt = "YYYY-MM" if unit == "month" else "YYYY"
+    with get_connection() as conn:
+        rows = conn.execute(
+            f"SELECT to_char(date_trunc('{unit}', published_at), '{fmt}') AS period, "
+            "count(*) FROM articles WHERE published_at IS NOT NULL "
+            "GROUP BY 1 ORDER BY 1",
+        ).fetchall()
+    return [CoveragePoint(period=p, count=n) for p, n in rows]
+
+
+class TopSource(BaseModel):
+    source: str
+    theme: str
+    count: int
+
+
+@router.get("/top-sources", response_model=list[TopSource])
+def top_sources(limit: int = 12) -> list[TopSource]:
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT source, source_type, count(*) FROM articles "
+            "GROUP BY 1, 2 ORDER BY 3 DESC LIMIT %s", (limit,),
+        ).fetchall()
+    return [TopSource(source=s, theme=THEME.get(t, "Other"), count=c)
+            for s, t, c in rows]
+
+
 class PipelineRunOut(BaseModel):
     trigger: str
     finished_at: str | None
