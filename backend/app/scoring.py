@@ -22,11 +22,15 @@ RUBRIC = (
     "- specificity: precise and substantive vs vague and general?\n"
     "- hype_markers: superlatives, breathlessness, marketing language with no "
     "proof (10 = pure hype, 0 = sober).\n"
-    "Then, for EACH persona given, score:\n"
-    "- relevance (0-10): does this matter to THIS persona, given what they care "
-    "about and their decision lens?\n"
-    "- angle: ONE sentence — the 'so what for you' for this persona. Concrete. "
-    "If irrelevant, say why briefly.\n"
+    "Then, for EACH persona given, score relevance on this STRICT scale — most "
+    "items are NOT relevant to a given persona, so be harsh and use the full range:\n"
+    "  0-2: they would skip this; not their world.\n"
+    "  3-5: tangential; mild interest, no action.\n"
+    "  6-7: would inform a decision they actually make.\n"
+    "  8-10: must-know; directly changes a near-term decision (their decision_lens).\n"
+    "Do NOT inflate. 'Could eventually reduce costs' is a 3, not a 7. Reserve 8-10 "
+    "for items that pass their decision_lens directly. Also give:\n"
+    "- angle: ONE concrete sentence — the 'so what for you'. If irrelevant, say so plainly.\n"
     "Return ONLY JSON."
 )
 
@@ -91,10 +95,21 @@ def _judge(title: str, summary: str, personas: list[Persona]) -> Score:
     )
 
 
-def _hype_gap(engagement: float, substance: float, max_eng: float) -> float:
-    # Normalize engagement to 0-10, subtract substance. + = overhyped, - = buried.
-    norm = 10.0 * math.log1p(max(0.0, engagement)) / math.log1p(max(1.0, max_eng))
+def _hype_gap(engagement: float, substance: float, max_eng: float) -> float | None:
+    # Only meaningful where engagement exists (HN/Reddit). For papers/blogs with no
+    # engagement signal, hype_gap is undefined — don't fake a 'buried' verdict.
+    if not engagement or engagement <= 0:
+        return None
+    norm = 10.0 * math.log1p(engagement) / math.log1p(max(1.0, max_eng))
     return round(norm - substance, 3)
+
+
+def persona_signal(substance: float, relevance: float, recency: float) -> float:
+    # Relevance LEADS (it's a persona feed). Substance is a quality DEMOTER, not a
+    # co-equal axis: a highly relevant item with low substance still surfaces, but a
+    # zero-substance hype piece gets pushed down. quality in [0.35, 1.0].
+    quality = 0.35 + 0.65 * (substance / 10.0)
+    return round(relevance * quality * recency, 4)
 
 
 def score_pending(limit: int | None = None, order: str = "recent") -> int:
@@ -115,22 +130,27 @@ def score_pending(limit: int | None = None, order: str = "recent") -> int:
             "SELECT COALESCE(max(external_score), 1) FROM articles"
         ).fetchone()[0] or 1
         rows = conn.execute(
-            f"SELECT id, title, summary, external_score, "
+            f"SELECT id, title, summary, body, external_score, "
             f"  EXTRACT(EPOCH FROM (now() - COALESCE(published_at, fetched_at))) "
             f"FROM articles WHERE scored_at IS NULL "
             f"ORDER BY {order_sql}" + (f" LIMIT {int(limit)}" if limit else "")
         ).fetchall()
 
     done = 0
-    for aid, title, summary, eng, age_s in rows:
+    for aid, title, summary, body, eng, age_s in rows:
+        # Judge on the richest text available, capped to keep prompts cheap.
+        text = (body or summary or "")
+        if summary and len(summary) > len(text):
+            text = summary
+        text = text[:4000]
         try:
-            sc = _judge(title or "", summary or "", personas)
+            sc = _judge(title or "", text, personas)
         except Exception as exc:  # noqa: BLE001 — skip a bad item, keep going
             print(f"[score] article {aid} failed: {type(exc).__name__}")
             continue
 
         substance = round(sc.substance, 3)
-        gap = _hype_gap(float(eng or 0), substance, float(max_eng))
+        gap = _hype_gap(float(eng or 0), substance, float(max_eng))  # None if no engagement
         age_days = float(age_s or 0) / 86400.0
         recency = math.exp(-age_days / 45.0)
 
@@ -147,7 +167,7 @@ def score_pending(limit: int | None = None, order: str = "recent") -> int:
                 pd = sc.personas.get(p.key, {}) or {}
                 rel = float(pd.get("relevance", 0) or 0)
                 angle = (pd.get("angle") or "")[:400]
-                signal = round(substance * (rel / 10.0) * recency, 4)
+                signal = persona_signal(substance, rel, recency)
                 conn.execute(
                     "INSERT INTO article_persona_scores "
                     "(article_id, persona_key, relevance, angle, signal, scored_at) "
