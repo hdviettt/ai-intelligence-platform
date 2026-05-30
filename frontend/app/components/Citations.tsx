@@ -1,5 +1,6 @@
 import type { Citation } from "@/lib/api";
 import { hostOf } from "@/lib/format";
+import { SourceIcon } from "./SourceIcon";
 
 export function renderAnswer(answer: string, citations: Citation[]) {
   // Turn [n] markers into superscript links to the matching citation.
@@ -18,7 +19,7 @@ export function renderAnswer(answer: string, citations: Citation[]) {
             target="_blank"
             rel="noopener noreferrer"
             title={`${c.source}: ${c.title}`}
-            className="mx-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded bg-accent-soft px-1 align-super text-[10px] font-semibold text-accent no-underline hover:bg-accent hover:text-white transition-colors"
+            className="mx-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-md bg-accent-soft px-1 align-text-top text-[10px] font-semibold text-accent no-underline transition-colors hover:bg-accent hover:text-white"
           >
             {n}
           </a>
@@ -32,23 +33,32 @@ export function renderAnswer(answer: string, citations: Citation[]) {
 export function CitationList({ citations }: { citations: Citation[] }) {
   if (!citations.length) return null;
   return (
-    <ol className="mt-4 space-y-1.5 border-t border-border pt-3">
-      {citations.map((c) => (
-        <li key={c.n} className="flex gap-2 text-sm">
-          <span className="mt-0.5 flex h-4 min-w-4 items-center justify-center rounded bg-accent-soft px-1 text-[10px] font-semibold text-accent">
-            {c.n}
-          </span>
+    <div className="mt-5 border-t border-border pt-4">
+      <div className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-muted-2">
+        {citations.length} source{citations.length > 1 ? "s" : ""}
+      </div>
+      <div className="grid gap-1.5 sm:grid-cols-2">
+        {citations.map((c) => (
           <a
+            key={c.n}
             href={c.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-muted hover:text-accent transition-colors"
+            className="group flex items-center gap-2.5 rounded-lg border border-border bg-surface px-3 py-2 transition-colors hover:border-accent/40 hover:bg-accent-soft/40 cursor-pointer"
           >
-            <span className="text-foreground">{c.title}</span>
-            <span className="ml-1.5 text-xs text-muted">· {hostOf(c.url)}</span>
+            <span className="flex h-5 min-w-5 items-center justify-center rounded bg-accent-soft px-1 text-[10px] font-semibold text-accent">
+              {c.n}
+            </span>
+            <SourceIcon url={c.url} size={16} />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm text-foreground group-hover:text-accent">
+                {c.title}
+              </span>
+              <span className="block truncate text-xs text-muted-2">{hostOf(c.url)}</span>
+            </span>
           </a>
-        </li>
-      ))}
-    </ol>
+        ))}
+      </div>
+    </div>
   );
 }
