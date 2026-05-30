@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 from tenacity import (
     retry,
+    retry_if_exception,
     retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
@@ -137,8 +138,20 @@ def _judge_groq(prompt: str, cfg) -> Score:
     return _parse(resp.choices[0].message.content)
 
 
+class _AuthError(Exception):
+    """Non-retryable: bad API key. Surfaced immediately so we don't burn retries."""
+
+
+def _retryable(exc: Exception) -> bool:
+    # Never retry auth/permission failures (401/403) — they won't self-heal.
+    if isinstance(exc, _AuthError):
+        return False
+    s = str(exc).lower()
+    return "401" not in s and "invalid x-api-key" not in s and "403" not in s
+
+
 @retry(
-    retry=retry_if_exception_type(Exception),
+    retry=retry_if_exception_type(Exception) & retry_if_exception(_retryable),
     wait=wait_exponential(multiplier=3, min=2, max=45),
     stop=stop_after_attempt(5),
     reraise=True,
