@@ -140,12 +140,32 @@ def _count(conn, table: str) -> int:
     return conn.execute(f"SELECT count(*) FROM {table}").fetchone()[0]
 
 
+_THEME = {"paper": "Research", "release": "Releases", "news": "News",
+          "discussion": "Discussion"}
+
+
+def _diversity(conn) -> tuple[int, dict]:
+    """Distinct live sources + article counts per theme — the breadth snapshot."""
+    distinct = conn.execute(
+        "SELECT count(DISTINCT source) FROM articles"
+    ).fetchone()[0]
+    rows = conn.execute(
+        "SELECT source_type, count(*) FROM articles GROUP BY 1"
+    ).fetchall()
+    themes: dict[str, int] = {}
+    for stype, n in rows:
+        key = _THEME.get(stype, "Other")
+        themes[key] = themes.get(key, 0) + n
+    return distinct, themes
+
+
 def run_pipeline(names: list[str] | None = None, max_override: int | None = None,
                  trigger: str = "manual") -> PipelineResult:
     """Full refresh: ingest the (enabled) sources, then embed what's new.
 
-    Records a `pipeline_runs` row capturing corpus size before/after and the
-    per-source breakdown, so /admin can show growth over time."""
+    Records a `pipeline_runs` row capturing corpus DEPTH (size/chunks) and
+    DIVERSITY (distinct sources, theme breakdown) so /admin can show the index
+    getting both bigger and broader over time."""
     started = datetime.now(timezone.utc)
     with get_connection() as conn:
         total_before = _count(conn, "articles")
@@ -156,6 +176,7 @@ def run_pipeline(names: list[str] | None = None, max_override: int | None = None
     with get_connection() as conn:
         total_after = _count(conn, "articles")
         chunks_after = _count(conn, "chunks")
+        distinct_sources, theme_breakdown = _diversity(conn)
 
     inserted = sum(i.inserted for i in ingests)
     updated = sum(i.updated for i in ingests)
@@ -165,9 +186,11 @@ def run_pipeline(names: list[str] | None = None, max_override: int | None = None
         conn.execute(
             "INSERT INTO pipeline_runs (trigger, started_at, finished_at, "
             "total_before, total_after, inserted, updated, embedded, chunks_after, "
-            "per_source) VALUES (%s, %s, now(), %s, %s, %s, %s, %s, %s, %s)",
+            "per_source, distinct_sources, theme_breakdown) "
+            "VALUES (%s, %s, now(), %s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (trigger, started, total_before, total_after, inserted, updated,
-             embedded, chunks_after, json.dumps(per_source)),
+             embedded, chunks_after, json.dumps(per_source),
+             distinct_sources, json.dumps(theme_breakdown)),
         )
         conn.commit()
 

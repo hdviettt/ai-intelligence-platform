@@ -1,7 +1,15 @@
-"""arXiv connector — recent papers via the (un-throttled) rss.arxiv.org feeds.
+"""arXiv connector — deep backfill via the export API (paginated), with the RSS
+feed as a fast path for small/recent pulls.
 
-Config (per ingest_sources row): {"categories": ["cs.AI", "cs.LG", "cs.CL"]}.
+Config (per ingest_sources row):
+  {"categories": ["cs.AI","cs.LG",...]}   # which categories
+  max_results controls depth:
+    <= 100  -> RSS feed (fast, recent only)
+    >  100  -> export API, paginated start/max with rate limiting (full archive)
+
+The export API 429s if hammered, so we sleep between every page (arXiv asks ~3s).
 """
+import time
 from datetime import datetime, timezone
 
 import feedparser
@@ -16,8 +24,11 @@ from tenacity import (
 from app.config import get_settings
 from app.ingest.base import Article, IngestSource
 
-FEED = "https://rss.arxiv.org/rss/{cat}"
+RSS_FEED = "https://rss.arxiv.org/rss/{cat}"
+EXPORT_API = "https://export.arxiv.org/api/query"
 DEFAULT_CATEGORIES = ["cs.AI", "cs.LG", "cs.CL"]
+PAGE = 100            # export API page size
+ARXIV_DELAY = 3.0     # seconds between export requests (arXiv etiquette)
 
 
 def _to_dt(entry) -> datetime | None:
@@ -27,49 +38,87 @@ def _to_dt(entry) -> datetime | None:
 
 @retry(
     retry=retry_if_exception_type((httpx.HTTPStatusError, httpx.TransportError)),
-    wait=wait_exponential(multiplier=2, min=2, max=20),
-    stop=stop_after_attempt(4),
+    wait=wait_exponential(multiplier=3, min=5, max=60),
+    stop=stop_after_attempt(5),
     reraise=True,
 )
-def _get(url: str, cfg) -> httpx.Response:
-    resp = httpx.get(url, timeout=45.0, follow_redirects=True,
+def _get(url: str, cfg, params=None) -> httpx.Response:
+    resp = httpx.get(url, params=params, timeout=60.0, follow_redirects=True,
                      headers={"User-Agent": cfg.user_agent})
     resp.raise_for_status()
     return resp
 
 
+def _entry_to_article(e, source: IngestSource, cat: str) -> Article | None:
+    link = e.get("link")
+    title = (e.get("title") or "").replace("\n", " ").strip()
+    if not link or not title:
+        return None
+    desc = e.get("summary") or ""
+    abstract = desc.split("Abstract:", 1)[-1].replace("\n", " ").strip()
+    authors = e.get("author") or ", ".join(
+        a.get("name", "") for a in e.get("authors", [])
+    )
+    return Article(
+        url=link, title=title, summary=abstract or None, body=abstract or None,
+        author=authors or None, source=source.name,
+        source_type=source.source_type, published_at=_to_dt(e),
+        raw={"id": e.get("id"), "category": cat,
+             "announce_type": e.get("arxiv_announce_type")},
+    )
+
+
+def _fetch_rss(source: IngestSource, categories: list[str], cfg) -> list[Article]:
+    per_cat = max(1, source.max_results // len(categories))
+    seen: set[str] = set()
+    out: list[Article] = []
+    for cat in categories:
+        resp = _get(RSS_FEED.format(cat=cat), cfg)
+        feed = feedparser.parse(resp.text)
+        for e in feed.entries[:per_cat]:
+            a = _entry_to_article(e, source, cat)
+            if a and a.url not in seen:
+                seen.add(a.url)
+                out.append(a)
+    return out
+
+
+def _fetch_export(source: IngestSource, categories: list[str], cfg) -> list[Article]:
+    """Deep paginated pull from the export API. Splits the budget per category."""
+    per_cat = max(PAGE, source.max_results // len(categories))
+    seen: set[str] = set()
+    out: list[Article] = []
+    for cat in categories:
+        got = 0
+        start = 0
+        while got < per_cat:
+            params = {
+                "search_query": f"cat:{cat}",
+                "sortBy": "submittedDate",
+                "sortOrder": "descending",
+                "start": start,
+                "max_results": min(PAGE, per_cat - got),
+            }
+            time.sleep(ARXIV_DELAY)
+            resp = _get(EXPORT_API, cfg, params=params)
+            feed = feedparser.parse(resp.text)
+            if not feed.entries:
+                break
+            for e in feed.entries:
+                a = _entry_to_article(e, source, cat)
+                if a and a.url not in seen:
+                    seen.add(a.url)
+                    out.append(a)
+            got += len(feed.entries)
+            start += len(feed.entries)
+            if len(feed.entries) < params["max_results"]:
+                break
+    return out
+
+
 def fetch_one(source: IngestSource) -> list[Article]:
     cfg = get_settings()
     categories = source.config.get("categories") or DEFAULT_CATEGORIES
-    per_cat = max(1, source.max_results // len(categories))
-    seen: set[str] = set()
-    articles: list[Article] = []
-
-    for cat in categories:
-        resp = _get(FEED.format(cat=cat), cfg)
-        feed = feedparser.parse(resp.text)
-        for e in feed.entries[:per_cat]:
-            link = e.get("link")
-            if not link or link in seen:
-                continue
-            seen.add(link)
-            desc = e.get("summary") or ""
-            abstract = desc.split("Abstract:", 1)[-1].replace("\n", " ").strip()
-            authors = e.get("author") or ", ".join(
-                a.get("name", "") for a in e.get("authors", [])
-            )
-            articles.append(
-                Article(
-                    url=link,
-                    title=(e.get("title") or "").replace("\n", " ").strip(),
-                    summary=abstract or None,
-                    body=abstract or None,
-                    author=authors or None,
-                    source=source.name,
-                    source_type=source.source_type,
-                    published_at=_to_dt(e),
-                    raw={"id": e.get("id"), "category": cat,
-                         "announce_type": e.get("arxiv_announce_type")},
-                )
-            )
-    return articles
+    if source.max_results <= 100:
+        return _fetch_rss(source, categories, cfg)
+    return _fetch_export(source, categories, cfg)

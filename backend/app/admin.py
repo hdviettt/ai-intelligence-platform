@@ -97,19 +97,24 @@ class GrowthPoint(BaseModel):
     finished_at: str
     total: int
     chunks: int
+    distinct_sources: int
+    themes: dict
 
 
 @router.get("/growth", response_model=list[GrowthPoint])
 def growth(limit: int = 60) -> list[GrowthPoint]:
-    """Corpus size at each recorded trigger, oldest -> newest (for the chart)."""
+    """Corpus depth + diversity at each recorded trigger, oldest -> newest."""
     with get_connection() as conn:
         rows = conn.execute(
-            "SELECT finished_at, total_after, chunks_after FROM pipeline_runs "
+            "SELECT finished_at, total_after, chunks_after, distinct_sources, "
+            "theme_breakdown FROM pipeline_runs "
             "WHERE finished_at IS NOT NULL ORDER BY id DESC LIMIT %s", (limit,),
         ).fetchall()
     return [
-        GrowthPoint(finished_at=str(fin), total=tot or 0, chunks=ch or 0)
-        for fin, tot, ch in reversed(rows)
+        GrowthPoint(finished_at=str(fin), total=tot or 0, chunks=ch or 0,
+                    distinct_sources=ds or 0,
+                    themes=(tb if isinstance(tb, dict) else {}))
+        for fin, tot, ch, ds, tb in reversed(rows)
     ]
 
 
