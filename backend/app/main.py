@@ -3,7 +3,7 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from app import discovery, retrieval, synthesis
+from app import discovery, feed, personas, retrieval, synthesis
 from app.admin import router as admin_router
 
 app = FastAPI(title="ai-search-experience")
@@ -48,6 +48,68 @@ class SearchOut(BaseModel):
 @app.get("/healthz")
 def healthz() -> dict:
     return {"ok": True}
+
+
+# --- Personas & feed ---
+
+class PersonaOut(BaseModel):
+    key: str
+    name: str
+    tagline: str | None
+
+
+@app.get("/personas", response_model=list[PersonaOut])
+def list_personas() -> list[PersonaOut]:
+    return [
+        PersonaOut(key=p.key, name=p.name, tagline=p.tagline)
+        for p in personas.list_personas(enabled_only=True)
+    ]
+
+
+class FeedItemOut(BaseModel):
+    id: int
+    url: str
+    title: str
+    summary: str | None
+    source: str
+    theme: str
+    published_at: str | None
+    signal: float
+    relevance: float
+    substance: float | None
+    hype_gap: float | None
+    angle: str | None
+
+
+class FeedOut(BaseModel):
+    persona: str
+    persona_name: str
+    items: list[FeedItemOut]
+    coverage: dict
+
+
+@app.get("/feed", response_model=FeedOut)
+def get_feed(persona: str = "ceo", limit: int = 20,
+             min_relevance: float = 4.0) -> FeedOut:
+    p = personas.get_persona(persona)
+    if not p:
+        return FeedOut(persona=persona, persona_name=persona, items=[], coverage={})
+    items = feed.persona_feed(persona, limit=limit, min_relevance=min_relevance)
+    return FeedOut(
+        persona=p.key,
+        persona_name=p.name,
+        coverage=feed.feed_stats(persona),
+        items=[
+            FeedItemOut(
+                id=i.id, url=i.url, title=i.title, summary=i.summary,
+                source=i.source, theme=i.theme,
+                published_at=str(i.published_at) if i.published_at else None,
+                signal=round(i.signal, 3), relevance=i.relevance,
+                substance=i.substance, hype_gap=i.hype_gap, angle=i.angle,
+            )
+            for i in items
+        ],
+    )
 
 
 @app.get("/search", response_model=SearchOut)

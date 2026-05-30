@@ -59,6 +59,50 @@ export async function getTrending(limit = 10): Promise<Trending[]> {
   return res.json();
 }
 
+// --- Personas & feed (the signal layer) ---
+
+export type Persona = {
+  key: string;
+  name: string;
+  tagline: string | null;
+};
+
+export type FeedItem = {
+  id: number;
+  url: string;
+  title: string;
+  summary: string | null;
+  source: string;
+  theme: string;
+  published_at: string | null;
+  signal: number;
+  relevance: number;
+  substance: number | null;
+  hype_gap: number | null;
+  angle: string | null;
+};
+
+export type Feed = {
+  persona: string;
+  persona_name: string;
+  items: FeedItem[];
+  coverage: { scored: number; total: number; relevant: number };
+};
+
+export async function getPersonas(): Promise<Persona[]> {
+  const res = await fetch(`${BASE}/personas`, { next: { revalidate: 600 } });
+  if (!res.ok) throw new Error(`personas failed: ${res.status}`);
+  return res.json();
+}
+
+export async function getFeed(persona = "ceo", limit = 24): Promise<Feed> {
+  const res = await fetch(`${BASE}/feed?persona=${persona}&limit=${limit}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`feed failed: ${res.status}`);
+  return res.json();
+}
+
 // --- Admin / control panel ---
 
 export type CorpusStats = {
