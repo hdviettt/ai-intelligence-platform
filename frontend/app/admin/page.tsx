@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   getCoverage,
   getPipelineRuns,
@@ -10,7 +9,9 @@ import { PipelineRuns } from "../components/PipelineRuns";
 import { SourcesManager } from "../components/SourcesManager";
 import { StatCards } from "../components/StatCards";
 import { ThemeDonut } from "../components/ThemeDonut";
+import { ThemeToggle } from "../components/ThemeToggle";
 import { TopSources } from "../components/TopSources";
+import { Wordmark } from "../components/Wordmark";
 
 export const dynamic = "force-dynamic";
 
@@ -36,14 +37,13 @@ export default async function AdminPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <header className="mb-6 flex items-center gap-3">
-        <Link href="/" className="font-semibold text-foreground">
-          AI<span className="text-accent">Search</span>
-        </Link>
+        <Wordmark />
         <span className="text-muted">/</span>
         <h1 className="font-medium text-foreground">Control panel</h1>
-        <span className="ml-auto rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+        <span className="ml-auto rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 dark:bg-green-400/15 dark:text-green-300">
           live
         </span>
+        <ThemeToggle />
       </header>
 
       <StatCards

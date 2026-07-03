@@ -1,36 +1,108 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: toggling `.dark` on <html> flips every `dark:` variant. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   Material 3 design tokens — Google Search / AI Mode flavored.
+   Seed color: Google Blue #4285F4. `--accent` is the tone-40
+   derivative used for text/icon/button-fill contexts so body
+   copy and labels clear WCAG AA (4.5:1); the literal brand hex
+   is kept as `--accent-brand` for decorative use only (logo
+   dots, chart accents, focus glow) where 3:1 is the bar.
+   ============================================================ */
 :root {
-  --background: #fafafb;
-  --surface: #ffffff;
-  --surface-2: #f4f4f8;
-  --foreground: #0e1014;
-  --muted: #5b6675;
-  --muted-2: #8b95a5;
-  --border: #e7e8ef;
-  --border-strong: #d6d8e2;
-  --accent: #5b54e0;
-  --accent-2: #8b5cf6;
-  --accent-soft: #eeecfd;
-  --shadow-sm: 0 1px 2px rgba(16, 18, 28, 0.04), 0 1px 3px rgba(16, 18, 28, 0.06);
-  --shadow-md: 0 4px 12px rgba(16, 18, 28, 0.06), 0 2px 4px rgba(16, 18, 28, 0.04);
-  --shadow-lg: 0 12px 32px rgba(16, 18, 28, 0.10), 0 4px 8px rgba(16, 18, 28, 0.04);
+  /* Surfaces (M3 surface / surface-container roles) */
+  --background: #f8f9fa;   /* app shell — Google Grey 50 */
+  --surface: #ffffff;      /* cards, inputs, headers */
+  --surface-2: #f1f3f4;    /* Grey 100 — hover / secondary surface */
+  --surface-3: #e8eaed;    /* Grey 200 — pressed / table header */
+
+  /* Text (M3 on-surface / on-surface-variant roles) */
+  --foreground: #1f1f1f;   /* Grey 900 — primary text */
+  --muted: #444746;        /* Grey 800 — secondary text */
+  --muted-2: #5f6368;      /* Grey 700 — tertiary / hint text */
+
+  /* Outline */
+  --border: #dadce0;       /* Grey 300 */
+  --border-strong: #bdc1c6; /* Grey 400 */
+
+  /* Primary — Google Blue */
+  --accent: #0b57d0;          /* AA-safe interactive blue (text, links, filled buttons) */
+  --accent-brand: #4285f4;    /* literal Google Blue — decorative only */
+  --on-accent: #ffffff;
+  --accent-soft: #d3e3fd;     /* primary-container — tonal chips */
+  --accent-soft-strong: #aecbfa;
+
+  /* Elevation — tint + soft shadow, never a heavy SaaS drop-shadow */
+  --shadow-xs: 0 1px 2px rgba(32, 33, 36, 0.05);
+  --shadow-sm: 0 1px 2px rgba(32, 33, 36, 0.05), 0 1px 3px 1px rgba(32, 33, 36, 0.08);
+  --shadow-md: 0 1px 2px rgba(32, 33, 36, 0.06), 0 2px 6px 2px rgba(32, 33, 36, 0.10);
+  --shadow-lg: 0 1px 3px rgba(32, 33, 36, 0.08), 0 4px 12px 4px rgba(32, 33, 36, 0.12);
+
+  /* Shape scale */
+  --shape-xs: 4px;
+  --shape-sm: 8px;
+  --shape-md: 12px;
+  --shape-lg: 16px;
+  --shape-xl: 28px;
+
+  /* Motion — M3 emphasized easing */
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-emphasized-accel: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --dur-1: 100ms;
+  --dur-2: 200ms;
+  --dur-3: 350ms;
+
+  color-scheme: light;
+}
+
+.dark {
+  --background: #131314;
+  --surface: #1e1f20;
+  --surface-2: #282a2c;
+  --surface-3: #33353a;
+
+  --foreground: #e3e3e3;
+  --muted: #c4c7c5;
+  --muted-2: #9aa0a6;
+
+  --border: #3c4043;
+  --border-strong: #5f6368;
+
+  --accent: #a8c7fa;           /* lighter M3 dark-scheme primary — reads on dark surfaces */
+  --accent-brand: #669df6;     /* brighter brand blue for decorative use in dark */
+  --on-accent: #062e6f;        /* dark navy text on the light dark-mode primary fill */
+  --accent-soft: rgba(168, 199, 250, 0.16);
+  --accent-soft-strong: rgba(168, 199, 250, 0.26);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.34), 0 2px 6px 2px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 14px 4px rgba(0, 0, 0, 0.34);
+
+  color-scheme: dark;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-muted-2: var(--muted-2);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-accent: var(--accent);
-  --color-accent-2: var(--accent-2);
+  --color-accent-brand: var(--accent-brand);
+  --color-on-accent: var(--on-accent);
   --color-accent-soft: var(--accent-soft);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-accent-soft-strong: var(--accent-soft-strong);
+  --font-sans: var(--font-roboto);
+  --font-mono: var(--font-roboto-mono);
 }
 
 html {
@@ -41,55 +113,21 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
+  transition: background-color var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard);
 }
 
-/* Gradient text for the wordmark / accents */
-.text-gradient {
-  background: linear-gradient(105deg, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Soft ambient glow behind the hero */
-.hero-glow {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: -1;
-}
-.hero-glow::before,
-.hero-glow::after {
-  content: "";
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(80px);
-  opacity: 0.5;
-}
-.hero-glow::before {
-  width: 480px; height: 480px;
-  top: -160px; left: 50%;
-  transform: translateX(-60%);
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.35), transparent 70%);
-}
-.hero-glow::after {
-  width: 420px; height: 420px;
-  top: -120px; left: 50%;
-  transform: translateX(10%);
-  background: radial-gradient(circle, rgba(91, 84, 224, 0.30), transparent 70%);
-}
-
-/* Subtle dotted grid texture */
-.dot-grid {
-  background-image: radial-gradient(rgba(16, 18, 28, 0.05) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-
+/* Default surface card: flat elevation-1, tint over shadow. */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow var(--dur-2) var(--ease-standard), border-color var(--dur-2) var(--ease-standard);
+}
+
+/* Subtle dotted texture — used sparingly instead of the old violet glow. */
+.dot-grid {
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size: 22px 22px;
 }
 
 @keyframes pulse-dot {
@@ -104,7 +142,7 @@ body {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.fade-up { animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.fade-up { animation: fade-up var(--dur-3) var(--ease-emphasized-decel) both; }
 .fade-up-1 { animation-delay: 0.05s; }
 .fade-up-2 { animation-delay: 0.12s; }
 .fade-up-3 { animation-delay: 0.2s; }
@@ -114,7 +152,7 @@ body {
   100% { background-position: 200% 0; }
 }
 .shimmer {
-  background: linear-gradient(90deg, var(--surface-2) 25%, #ececf2 50%, var(--surface-2) 75%);
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
 }

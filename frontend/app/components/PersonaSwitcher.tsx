@@ -38,12 +38,11 @@ export function PersonaSwitcher({
           <button
             key={p.key}
             onClick={() => pick(p.key)}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition-all cursor-pointer ${
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ease-[var(--ease-standard)] cursor-pointer ${
               on
-                ? "text-white shadow-sm"
-                : "bg-surface text-muted ring-1 ring-border hover:text-foreground hover:ring-border-strong"
+                ? "bg-accent text-on-accent shadow-[var(--shadow-xs)]"
+                : "bg-surface text-muted ring-1 ring-border hover:bg-surface-2 hover:text-foreground hover:ring-border-strong"
             }`}
-            style={on ? { background: "linear-gradient(135deg, #6366f1, #8b5cf6)" } : undefined}
           >
             {p.name}
           </button>

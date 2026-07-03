@@ -170,12 +170,12 @@ export function SourcesManager() {
           onChange={(e) => saveToken(e.target.value)}
           placeholder="Admin token"
           aria-label="Admin token"
-          className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft"
+          className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft"
         />
         <button
           onClick={() => runIngest()}
           disabled={busy || token.length < 4}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-colors duration-150 ease-[var(--ease-standard)] hover:shadow-[var(--shadow-xs)] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
         >
           Ingest all
         </button>
@@ -184,7 +184,7 @@ export function SourcesManager() {
       <div className="overflow-hidden rounded-xl border border-border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-surface text-xs text-muted">
+            <tr className="border-b border-border bg-surface-2 text-xs text-muted">
               <th className="px-3 py-2 text-left font-medium">Source</th>
               <th className="px-3 py-2 text-left font-medium">Connector</th>
               <th className="px-3 py-2 text-left font-medium">Type</th>
@@ -194,18 +194,18 @@ export function SourcesManager() {
           </thead>
           <tbody>
             {sources.map((s) => (
-              <tr key={s.id} className="border-b border-border last:border-0">
+              <tr key={s.id} className="border-b border-border bg-surface last:border-0">
                 <td className="px-3 py-2">
                   <span className="flex items-center gap-2">
                     <span
-                      className={`h-2 w-2 rounded-full ${s.enabled ? "bg-emerald-500" : "bg-slate-300"}`}
+                      className={`h-2 w-2 rounded-full ${s.enabled ? "bg-green-600 dark:bg-green-400" : "bg-slate-300 dark:bg-slate-600"}`}
                     />
-                    {s.name}
+                    <span className="text-foreground">{s.name}</span>
                   </span>
                 </td>
                 <td className="px-3 py-2 text-muted">{s.connector}</td>
                 <td className="px-3 py-2 text-muted">{s.source_type}</td>
-                <td className="px-3 py-2 text-right tabular-nums">{s.max_results}</td>
+                <td className="px-3 py-2 text-right tabular-nums text-foreground">{s.max_results}</td>
                 <td className="px-3 py-2">
                   <div className="flex justify-end gap-2 text-xs">
                     <button onClick={() => runIngest(s.name)} disabled={busy}
@@ -216,7 +216,7 @@ export function SourcesManager() {
                     <button onClick={() => startEdit(s)} disabled={busy}
                       className="text-muted hover:text-foreground cursor-pointer disabled:opacity-40">edit</button>
                     <button onClick={() => remove(s)} disabled={busy}
-                      className="text-red-600 hover:underline cursor-pointer disabled:opacity-40">del</button>
+                      className="text-red-600 hover:underline cursor-pointer disabled:opacity-40 dark:text-red-400">del</button>
                   </div>
                 </td>
               </tr>
@@ -225,7 +225,7 @@ export function SourcesManager() {
         </table>
       </div>
 
-      <div className="rounded-xl border border-border bg-surface p-4">
+      <div className="rounded-[28px] border border-border bg-surface p-5">
         <h3 className="text-sm font-semibold text-foreground">
           {editId ? "Edit source" : "Add source"}
         </h3>
@@ -281,14 +281,14 @@ export function SourcesManager() {
           <button
             onClick={submitDraft}
             disabled={busy || token.length < 4 || draft.name.trim().length < 2}
-            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-colors duration-150 ease-[var(--ease-standard)] hover:shadow-[var(--shadow-xs)] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             {editId ? "Save changes" : "Add source"}
           </button>
           {editId && (
             <button
               onClick={() => { setEditId(null); setDraft(BLANK); }}
-              className="rounded-lg border border-border px-4 py-2 text-sm text-muted hover:text-foreground cursor-pointer"
+              className="rounded-full border border-border px-4 py-2 text-sm text-muted hover:bg-surface-2 hover:text-foreground cursor-pointer"
             >
               Cancel
             </button>

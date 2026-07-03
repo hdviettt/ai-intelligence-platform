@@ -23,8 +23,7 @@ export async function PersonaFeed({ persona }: { persona: string }) {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-foreground">
-          Today for{" "}
-          <span className="text-gradient">{feed.persona_name}</span>
+          Today for <span className="text-accent">{feed.persona_name}</span>
         </h2>
         <span className="text-xs text-muted-2">
           ranked by signal · {feed.coverage.scored.toLocaleString()} of{" "}

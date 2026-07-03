@@ -4,6 +4,7 @@ import { AnswerBlock, AnswerSkeleton } from "../components/AnswerBlock";
 import { ResultGroups } from "../components/ResultGroups";
 import { SearchBar } from "../components/SearchBar";
 import { TrendingRail } from "../components/TrendingRail";
+import { ThemeToggle } from "../components/ThemeToggle";
 import { Wordmark } from "../components/Wordmark";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,7 @@ async function Results({ q }: { q: string }) {
     data = await search(q, 12);
   } catch {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-400/25 dark:bg-red-400/10 dark:text-red-300">
         Something went wrong reaching the search service. Try again.
       </div>
     );
@@ -65,6 +66,7 @@ export default async function SearchPage({
           <div className="flex-1">
             <SearchBar initial={query} size="md" />
           </div>
+          <ThemeToggle />
         </div>
       </header>
 

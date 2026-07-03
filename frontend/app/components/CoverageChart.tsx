@@ -4,7 +4,7 @@ import type { CoveragePoint } from "@/lib/api";
 export function CoverageChart({ points }: { points: CoveragePoint[] }) {
   if (!points.length) {
     return (
-      <div className="rounded-2xl border border-border bg-surface p-5 text-sm text-muted">
+      <div className="rounded-xl border border-border bg-surface p-5 text-sm text-muted">
         No dated articles yet.
       </div>
     );
@@ -28,7 +28,7 @@ export function CoverageChart({ points }: { points: CoveragePoint[] }) {
   const last = points[points.length - 1].period;
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5">
+    <div className="rounded-xl border border-border bg-surface p-5">
       <div className="mb-1 flex items-baseline justify-between">
         <span className="text-sm font-semibold text-foreground">
           {total.toLocaleString()} dated articles
@@ -38,12 +38,6 @@ export function CoverageChart({ points }: { points: CoveragePoint[] }) {
         </span>
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Articles by publication year">
-        <defs>
-          <linearGradient id="covBar" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="100%" stopColor="#a5b4fc" />
-          </linearGradient>
-        </defs>
         {points.map((p, i) => {
           const bh = Math.max(1, h(p.count));
           const showLabel = n <= 22 && (i % Math.ceil(n / 12) === 0 || i === n - 1);
@@ -55,7 +49,7 @@ export function CoverageChart({ points }: { points: CoveragePoint[] }) {
                 width={bw}
                 height={bh}
                 rx={Math.min(3, bw / 2)}
-                fill="url(#covBar)"
+                className="fill-accent"
               >
                 <title>{`${p.period}: ${p.count.toLocaleString()}`}</title>
               </rect>
@@ -64,7 +58,7 @@ export function CoverageChart({ points }: { points: CoveragePoint[] }) {
                   x={x(i) + bw / 2}
                   y={H - 10}
                   textAnchor="middle"
-                  className="fill-slate-400 text-[9px]"
+                  className="fill-muted-2 text-[9px]"
                 >
                   {p.period.length > 4 ? p.period.slice(2) : p.period}
                 </text>

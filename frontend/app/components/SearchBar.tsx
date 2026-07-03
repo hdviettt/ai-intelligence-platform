@@ -33,12 +33,8 @@ export function SearchBar({
   return (
     <form
       onSubmit={submit}
-      className={`relative w-full rounded-2xl bg-surface transition-all duration-200 ${
-        focused
-          ? "shadow-lg ring-2 ring-accent/50"
-          : "shadow-md ring-1 ring-border hover:ring-border-strong"
-      }`}
-      style={{ boxShadow: focused ? "var(--shadow-lg)" : "var(--shadow-md)" }}
+      className="relative w-full rounded-full bg-surface transition-shadow duration-200 ease-[var(--ease-standard)]"
+      style={{ boxShadow: focused ? "var(--shadow-lg)" : "var(--shadow-sm)" }}
     >
       <svg
         viewBox="0 0 24 24"
@@ -61,17 +57,16 @@ export function SearchBar({
         onBlur={() => setFocused(false)}
         placeholder="Ask anything about AI…"
         aria-label="Search the AI beat"
-        className={`w-full rounded-2xl bg-transparent pl-13 text-foreground outline-none placeholder:text-muted-2 ${
-          big ? "py-4 pr-32 text-base" : "py-3 pr-28 text-[15px]"
+        className={`w-full rounded-full bg-transparent pr-28 text-foreground outline-none placeholder:text-muted-2 ${
+          big ? "py-4 text-base" : "py-3 text-[15px]"
         }`}
         style={{ paddingLeft: big ? "3.25rem" : "3rem" }}
       />
       <button
         type="submit"
-        className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-xl font-medium text-white transition-all hover:brightness-110 active:scale-95 cursor-pointer ${
+        className={`absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full bg-accent font-medium text-on-accent transition-transform duration-100 ease-[var(--ease-standard)] hover:shadow-[var(--shadow-sm)] active:scale-95 cursor-pointer ${
           big ? "px-5 py-2.5 text-sm" : "px-4 py-2 text-sm"
         }`}
-        style={{ background: "linear-gradient(135deg, #6366f1, #7c5cf0)" }}
       >
         Search
       </button>

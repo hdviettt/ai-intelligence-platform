@@ -1,22 +1,26 @@
 import Link from "next/link";
 
+// Mark: four signal dots (Google's own brand palette) converging on one
+// synthesized center — "many sources, one read." No gradients, no violet.
 export function Wordmark({ size = "sm" }: { size?: "sm" | "lg" }) {
-  const dim = size === "lg" ? "h-8 w-8" : "h-7 w-7";
+  const dim = size === "lg" ? "h-9 w-9" : "h-7 w-7";
   const text = size === "lg" ? "text-xl" : "text-base";
   return (
-    <Link href="/" className="flex items-center gap-2 font-semibold">
+    <Link href="/" className="group flex items-center gap-2 font-medium">
       <span
-        className={`${dim} flex items-center justify-center rounded-xl text-white shadow-sm`}
-        style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
+        className={`${dim} flex items-center justify-center rounded-full bg-surface-2 transition-colors group-hover:bg-surface-3`}
         aria-hidden
       >
-        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2">
-          <circle cx="11" cy="11" r="6.5" />
-          <path d="m20 20-3.6-3.6" strokeLinecap="round" />
+        <svg viewBox="0 0 24 24" className="h-full w-full">
+          <circle cx="12" cy="5.25" r="2" fill="#4285F4" />
+          <circle cx="18.75" cy="12" r="2" fill="#34A853" />
+          <circle cx="12" cy="18.75" r="2" fill="#FBBC05" />
+          <circle cx="5.25" cy="12" r="2" fill="#EA4335" />
+          <circle cx="12" cy="12" r="3.25" className="fill-foreground" />
         </svg>
       </span>
       <span className={`${text} tracking-tight text-foreground`}>
-        AI<span className="text-gradient">Search</span>
+        AI<span className="text-accent">Search</span>
       </span>
     </Link>
   );

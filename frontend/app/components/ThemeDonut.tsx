@@ -1,15 +1,10 @@
 import { THEME_STYLES } from "@/lib/format";
 
 const ORDER = ["Research", "Releases", "News", "Discussion", "Other"];
-const HEX: Record<string, string> = {
-  Research: "#8b5cf6",
-  Releases: "#10b981",
-  News: "#0ea5e9",
-  Discussion: "#f59e0b",
-  Other: "#94a3b8",
-};
 
 // Donut of corpus theme distribution. Diversity at a glance.
+// Colors come straight from THEME_STYLES so this stays in lockstep with
+// every other theme chip/rail in the app (Google blue/green/amber/cyan/grey).
 export function ThemeDonut({
   themes,
 }: {
@@ -31,31 +26,34 @@ export function ThemeDonut({
   });
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5">
+    <div className="rounded-xl border border-border bg-surface p-5">
       <span className="text-sm font-semibold text-foreground">Theme spread</span>
       <div className="mt-3 flex items-center gap-5">
         <svg viewBox="0 0 140 140" className="h-32 w-32 shrink-0">
           <g transform="rotate(-90 70 70)">
-            {segments.map((s) => (
-              <circle
-                key={s.t}
-                cx="70"
-                cy="70"
-                r={R}
-                fill="none"
-                stroke={HEX[s.t] ?? HEX.Other}
-                strokeWidth="16"
-                strokeDasharray={`${s.dash} ${C - s.dash}`}
-                strokeDashoffset={-s.off}
-              >
-                <title>{`${s.t}: ${s.v.toLocaleString()} (${Math.round(s.frac * 100)}%)`}</title>
-              </circle>
-            ))}
+            {segments.map((s) => {
+              const style = THEME_STYLES[s.t] ?? THEME_STYLES.Other;
+              return (
+                <circle
+                  key={s.t}
+                  cx="70"
+                  cy="70"
+                  r={R}
+                  fill="none"
+                  stroke={style.hex}
+                  strokeWidth="16"
+                  strokeDasharray={`${s.dash} ${C - s.dash}`}
+                  strokeDashoffset={-s.off}
+                >
+                  <title>{`${s.t}: ${s.v.toLocaleString()} (${Math.round(s.frac * 100)}%)`}</title>
+                </circle>
+              );
+            })}
           </g>
-          <text x="70" y="66" textAnchor="middle" className="fill-slate-900 text-lg font-semibold">
+          <text x="70" y="66" textAnchor="middle" className="fill-foreground text-lg font-semibold">
             {total.toLocaleString()}
           </text>
-          <text x="70" y="82" textAnchor="middle" className="fill-slate-400 text-[9px]">
+          <text x="70" y="82" textAnchor="middle" className="fill-muted-2 text-[9px]">
             articles
           </text>
         </svg>

@@ -9,7 +9,7 @@ type Stat = {
 
 function Card({ s }: { s: Stat }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5">
+    <div className="relative overflow-hidden rounded-xl border border-border bg-surface p-5 transition-shadow duration-200 ease-[var(--ease-standard)] hover:shadow-[var(--shadow-sm)]">
       <div className="flex items-start justify-between">
         <div>
           <div className="text-3xl font-semibold tabular-nums tracking-tight text-foreground">
@@ -18,17 +18,17 @@ function Card({ s }: { s: Stat }) {
           <div className="mt-0.5 text-xs text-muted">{s.label}</div>
         </div>
         <span
-          className="flex h-8 w-8 items-center justify-center rounded-lg"
-          style={{ background: `${s.accent}1a`, color: s.accent }}
+          className="flex h-8 w-8 items-center justify-center rounded-full"
+          style={{ background: `${s.accent}1f`, color: s.accent }}
         >
           {s.icon}
         </span>
       </div>
       {s.hint && <div className="mt-2 text-xs text-muted">{s.hint}</div>}
       {typeof s.progress === "number" && (
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-background">
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2">
           <div
-            className="h-full rounded-full"
+            className="h-full rounded-full transition-[width] duration-500 ease-[var(--ease-emphasized)]"
             style={{ width: `${s.progress}%`, background: s.accent }}
           />
         </div>
@@ -76,18 +76,20 @@ export function StatCards({
   sources: number;
 }) {
   const coverage = total ? Math.round((embedded / total) * 100) : 0;
+  // Google's four brand hues, used here exactly as the design system intends:
+  // a restrained categorical accent per stat, not a decorative rainbow.
   const stats: Stat[] = [
-    { label: "Articles", value: total, accent: "#6366f1", icon: I.doc },
+    { label: "Articles", value: total, accent: "#4285F4", icon: I.doc },
     {
       label: "Embedded",
       value: embedded,
-      accent: "#10b981",
+      accent: "#34A853",
       icon: I.vector,
       hint: `${coverage}% coverage`,
       progress: coverage,
     },
-    { label: "Chunks", value: chunks, accent: "#0ea5e9", icon: I.chunk },
-    { label: "Sources", value: sources, accent: "#f59e0b", icon: I.source },
+    { label: "Chunks", value: chunks, accent: "#F9AB00", icon: I.chunk },
+    { label: "Sources", value: sources, accent: "#EA4335", icon: I.source },
   ];
   return (
     <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">

@@ -19,7 +19,7 @@ export function renderAnswer(answer: string, citations: Citation[]) {
             target="_blank"
             rel="noopener noreferrer"
             title={`${c.source}: ${c.title}`}
-            className="mx-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-md bg-accent-soft px-1 align-text-top text-[10px] font-semibold text-accent no-underline transition-colors hover:bg-accent hover:text-white"
+            className="mx-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-md bg-accent-soft px-1 align-text-top text-[10px] font-semibold text-accent no-underline transition-colors duration-100 ease-[var(--ease-standard)] hover:bg-accent hover:text-on-accent"
           >
             {n}
           </a>

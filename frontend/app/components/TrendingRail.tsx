@@ -14,10 +14,7 @@ export async function TrendingRail({ compact = false }: { compact?: boolean }) {
   return (
     <aside className="overflow-hidden rounded-2xl card">
       <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
-        <span
-          className="flex h-6 w-6 items-center justify-center rounded-lg text-white"
-          style={{ background: "linear-gradient(135deg, #f59e0b, #f97316)" }}
-        >
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-50 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300">
           <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M3 17l6-6 4 4 8-8" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M21 7v5h-5" strokeLinecap="round" strokeLinejoin="round" />
@@ -25,7 +22,7 @@ export async function TrendingRail({ compact = false }: { compact?: boolean }) {
         </span>
         <h2 className="text-sm font-semibold text-foreground">Trending in AI</h2>
         <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-2">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-600 dark:bg-green-400" />
           live
         </span>
       </div>
@@ -43,7 +40,7 @@ export async function TrendingRail({ compact = false }: { compact?: boolean }) {
               >
                 <span
                   className={`mt-0.5 w-5 shrink-0 text-center text-sm font-bold tabular-nums ${
-                    i < 3 ? "text-gradient" : "text-muted-2"
+                    i < 3 ? "text-accent" : "text-muted-2"
                   }`}
                 >
                   {i + 1}

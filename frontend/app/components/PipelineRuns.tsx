@@ -2,10 +2,10 @@ import type { PipelineRun } from "@/lib/api";
 import { timeAgo } from "@/lib/format";
 
 const TRIGGER_STYLE: Record<string, string> = {
-  cron: "bg-sky-100 text-sky-700",
-  admin: "bg-violet-100 text-violet-700",
-  cli: "bg-slate-100 text-slate-600",
-  baseline: "bg-amber-100 text-amber-700",
+  cron: "bg-blue-100 text-blue-700 dark:bg-blue-400/15 dark:text-blue-300",
+  admin: "bg-green-100 text-green-700 dark:bg-green-400/15 dark:text-green-300",
+  cli: "bg-slate-100 text-slate-600 dark:bg-slate-400/15 dark:text-slate-300",
+  baseline: "bg-amber-100 text-amber-800 dark:bg-amber-400/15 dark:text-amber-300",
 };
 
 // What each trigger changed: net corpus delta + which sources contributed.
@@ -46,7 +46,7 @@ export function PipelineRuns({ runs }: { runs: PipelineRun[] }) {
                   {r.total_after.toLocaleString()}
                 </span>
                 {delta > 0 && (
-                  <span className="ml-1.5 text-emerald-600">
+                  <span className="ml-1.5 text-green-700 dark:text-green-400">
                     +{delta.toLocaleString()}
                   </span>
                 )}
@@ -61,7 +61,7 @@ export function PipelineRuns({ runs }: { runs: PipelineRun[] }) {
                 {contributors.map((s) => (
                   <span
                     key={s.source}
-                    className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700"
+                    className="rounded-md bg-green-50 px-2 py-0.5 text-xs text-green-700 dark:bg-green-400/15 dark:text-green-300"
                   >
                     {s.source} +{s.inserted}
                   </span>
@@ -74,7 +74,7 @@ export function PipelineRuns({ runs }: { runs: PipelineRun[] }) {
                 {errored.map((s) => (
                   <span
                     key={s.source}
-                    className="rounded-md bg-red-50 px-2 py-0.5 text-xs text-red-600"
+                    className="rounded-md bg-red-50 px-2 py-0.5 text-xs text-red-600 dark:bg-red-400/15 dark:text-red-300"
                     title={s.error ?? ""}
                   >
                     {s.source} ⚠

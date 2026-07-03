@@ -6,6 +6,7 @@ import { CorpusStrip } from "./components/CorpusStrip";
 import { Wordmark } from "./components/Wordmark";
 import { PersonaSwitcher } from "./components/PersonaSwitcher";
 import { PersonaFeed } from "./components/PersonaFeed";
+import { ThemeToggle } from "./components/ThemeToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -36,25 +37,26 @@ export default async function Home({
     <div className="relative min-h-screen">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
         <Wordmark />
-        <a
-          href="/admin"
-          className="text-sm text-muted-2 transition-colors hover:text-foreground"
-        >
-          Control panel
-        </a>
+        <div className="flex items-center gap-1">
+          <a
+            href="/admin"
+            className="rounded-full px-3 py-2 text-sm text-muted-2 transition-colors duration-150 hover:bg-surface-2 hover:text-foreground"
+          >
+            Control panel
+          </a>
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6">
         <section className="relative flex flex-col items-center pt-12 pb-10 text-center sm:pt-16">
-          <div className="hero-glow" />
-
-          <span className="fade-up mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-muted shadow-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          <span className="fade-up mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-muted shadow-[var(--shadow-xs)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400" />
             Live engine for the AI beat
           </span>
 
-          <h1 className="fade-up fade-up-1 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-            What <span className="text-gradient">actually matters</span> in AI,
+          <h1 className="fade-up fade-up-1 text-4xl font-normal tracking-tight text-foreground sm:text-5xl">
+            What <span className="text-accent">actually matters</span> in AI,
             <br className="hidden sm:block" /> tailored to you
           </h1>
           <p className="fade-up fade-up-2 mt-4 max-w-xl text-base leading-relaxed text-muted">
