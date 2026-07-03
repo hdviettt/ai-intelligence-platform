@@ -36,11 +36,12 @@ export default async function AdminPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <header className="mb-6 flex items-center gap-3">
+      <header className="mb-8 flex items-center gap-3">
         <Wordmark />
-        <span className="text-md-on-surface-variant">/</span>
+        <span className="text-md-on-surface-variant/50">/</span>
         <h1 className="md-title-large text-md-on-surface">Control panel</h1>
-        <span className="ml-auto rounded-full bg-green-50 px-2.5 py-1 md-label-small text-green-700 dark:bg-green-400/15 dark:text-green-300">
+        <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-md-surface-container px-2.5 py-1 md-label-small text-md-on-surface-variant">
+          <span className="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400" />
           live
         </span>
         <ThemeToggle />
@@ -53,25 +54,25 @@ export default async function AdminPage() {
         sources={distinctSources}
       />
 
-      <section className="mt-6">
-        <h2 className="mb-2.5 md-title-small text-md-on-surface">
+      <section className="mt-10">
+        <h2 className="mb-3 md-title-small text-md-on-surface">
           Content coverage over time
         </h2>
         <CoverageChart points={coverage} />
       </section>
 
-      <section className="mt-6 grid gap-4 lg:grid-cols-2">
+      <section className="mt-10 grid gap-4 lg:grid-cols-2">
         <ThemeDonut themes={stats.by_theme} />
         <TopSources sources={topSources} />
       </section>
 
-      <section className="mt-8">
-        <h2 className="mb-2.5 md-title-small text-md-on-surface">Sources</h2>
+      <section className="mt-12">
+        <h2 className="mb-3 md-title-small text-md-on-surface">Sources</h2>
         <SourcesManager />
       </section>
 
-      <section className="mt-8">
-        <h2 className="mb-2.5 md-title-small text-md-on-surface">
+      <section className="mt-12">
+        <h2 className="mb-3 md-title-small text-md-on-surface">
           What each trigger changed
         </h2>
         <PipelineRuns runs={pipelineRuns} />

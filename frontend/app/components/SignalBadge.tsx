@@ -1,37 +1,14 @@
-import { Icon } from "./Icon";
+// The signal indicator — the product's point of view, kept deliberately quiet.
+// A single score + one-word tier, nothing more. Only the top tier ("Must-know")
+// earns the blue accent; everything below stays neutral so the page reads calm.
+// The hype / underrated call-outs are a separate axis (attention vs. substance)
+// and render as small muted text, never as coloured pills.
 
-// The signal badge — the visible point of view, and the product's core
-// differentiator: it tells you how much an item actually matters. Material
-// scale runs high = Google green (filled -> tonal container) down to
-// low = neutral grey, so the eye reads "importance" the same way it reads
-// a battery meter. Hype/buried-signal call-outs are a separate axis
-// (attention vs. substance) and get their own hues so they never get
-// mistaken for the signal score itself.
-
-function tier(signal: number): { label: string; cls: string; dotCls: string } {
-  if (signal >= 6)
-    return {
-      label: "Must-know",
-      cls: "bg-green-700 text-white dark:bg-green-400 dark:text-green-950",
-      dotCls: "bg-white/80 dark:bg-green-950/70",
-    };
-  if (signal >= 4)
-    return {
-      label: "High signal",
-      cls: "bg-green-50 text-green-800 ring-1 ring-inset ring-green-200 dark:bg-green-400/15 dark:text-green-300 dark:ring-green-400/25",
-      dotCls: "bg-green-600 dark:bg-green-400",
-    };
-  if (signal >= 2)
-    return {
-      label: "Worth noting",
-      cls: "bg-md-surface-container text-md-on-surface-variant ring-1 ring-inset ring-md-outline-variant",
-      dotCls: "bg-md-on-surface-variant",
-    };
-  return {
-    label: "Low signal",
-    cls: "bg-md-surface-container-low text-md-on-surface-variant/70 ring-1 ring-inset ring-md-outline-variant",
-    dotCls: "bg-md-outline",
-  };
+function tier(signal: number): { label: string; top: boolean } {
+  if (signal >= 6) return { label: "Must-know", top: true };
+  if (signal >= 4) return { label: "High signal", top: false };
+  if (signal >= 2) return { label: "Worth noting", top: false };
+  return { label: "Low signal", top: false };
 }
 
 export function SignalBadge({
@@ -42,41 +19,24 @@ export function SignalBadge({
   hypeGap: number | null;
 }) {
   const t = tier(signal);
-  // hype_gap > ~3 = much more attention than substance -> hype.
+  // hype_gap > ~3 = far more attention than substance -> hype.
   // hype_gap < ~-3 = real substance, little attention -> buried signal.
   const hype = hypeGap !== null && hypeGap >= 3;
   const buried = hypeGap !== null && hypeGap <= -3;
+  const tone = t.top ? "text-md-primary" : "text-md-on-surface-variant";
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 md-label-small ${t.cls}`}>
-        <span className={`h-1.5 w-1.5 rounded-full ${t.dotCls}`} aria-hidden />
-        {t.label}
-      </span>
-      <span
-        className="rounded-full bg-md-surface-container px-1.5 py-0.5 md-label-small font-medium tabular-nums text-md-on-surface ring-1 ring-inset ring-md-outline-variant"
-        title="Signal score"
-      >
+    <span className="inline-flex items-center gap-1.5 md-label-small">
+      <span className={`inline-flex items-center gap-1 font-medium tabular-nums ${tone}`}>
+        <span
+          className={`h-1.5 w-1.5 rounded-full ${t.top ? "bg-md-primary" : "bg-md-outline"}`}
+          aria-hidden
+        />
         {signal.toFixed(1)}
       </span>
-      {hype && (
-        <span
-          className="flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 md-label-small text-amber-800 ring-1 ring-amber-200 dark:bg-amber-400/15 dark:text-amber-300 dark:ring-amber-400/25"
-          title="Getting more attention than its substance warrants"
-        >
-          <Icon name="local_fire_department" size={12} />
-          hype
-        </span>
-      )}
-      {buried && (
-        <span
-          className="flex items-center gap-1 rounded-full bg-md-primary-container px-1.5 py-0.5 md-label-small text-md-on-primary-container ring-1 ring-md-outline-variant"
-          title="Substantive but under the radar"
-        >
-          <Icon name="visibility" size={12} />
-          underrated
-        </span>
-      )}
-    </div>
+      <span className={tone}>{t.label}</span>
+      {hype && <span className="text-md-on-surface-variant/60">· hype</span>}
+      {buried && <span className="text-md-on-surface-variant/60">· underrated</span>}
+    </span>
   );
 }

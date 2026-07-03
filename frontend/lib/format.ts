@@ -26,47 +26,25 @@ export function timeAgo(iso: string | null): string {
   return "just now";
 }
 
-// Theme → a full visual kit. Used for dots, labels, tinted chips, left rails.
-// Palette leans on Google's own four brand hues (blue / green / yellow) plus
-// one neutral cyan and grey — true red is kept out so it stays reserved for
-// error states only. Every entry ships a dark-mode variant.
+// Theme → a restrained, monochrome visual kit. Content themes read as quiet
+// text labels, NOT colour-coded chips — the page stays neutral (ink on paper)
+// and the single blue accent is reserved for interaction and the top signal
+// tier. `hex` is a neutral grey ramp so charts read as one calm family, not a
+// rainbow. Every class token already adapts to dark mode via M3 roles.
+const NEUTRAL = {
+  dot: "bg-md-outline",
+  label: "text-md-on-surface-variant",
+  chip: "text-md-on-surface-variant/70",
+  rail: "bg-md-outline-variant",
+} as const;
+
 export const THEME_STYLES: Record<
   string,
   { dot: string; label: string; chip: string; rail: string; hex: string }
 > = {
-  Research: {
-    dot: "bg-blue-600 dark:bg-blue-400",
-    label: "text-blue-700 dark:text-blue-300",
-    chip: "bg-blue-50 text-blue-700 ring-blue-200/70 dark:bg-blue-400/15 dark:text-blue-300 dark:ring-blue-400/25",
-    rail: "bg-blue-500 dark:bg-blue-400",
-    hex: "#4285F4",
-  },
-  Releases: {
-    dot: "bg-green-600 dark:bg-green-400",
-    label: "text-green-700 dark:text-green-300",
-    chip: "bg-green-50 text-green-700 ring-green-200/70 dark:bg-green-400/15 dark:text-green-300 dark:ring-green-400/25",
-    rail: "bg-green-500 dark:bg-green-400",
-    hex: "#34A853",
-  },
-  News: {
-    dot: "bg-amber-500 dark:bg-amber-400",
-    label: "text-amber-800 dark:text-amber-300",
-    chip: "bg-amber-50 text-amber-800 ring-amber-200/70 dark:bg-amber-400/15 dark:text-amber-300 dark:ring-amber-400/25",
-    rail: "bg-amber-400 dark:bg-amber-400",
-    hex: "#F9AB00",
-  },
-  Discussion: {
-    dot: "bg-cyan-600 dark:bg-cyan-400",
-    label: "text-cyan-700 dark:text-cyan-300",
-    chip: "bg-cyan-50 text-cyan-700 ring-cyan-200/70 dark:bg-cyan-400/15 dark:text-cyan-300 dark:ring-cyan-400/25",
-    rail: "bg-cyan-500 dark:bg-cyan-400",
-    hex: "#12959E",
-  },
-  Other: {
-    dot: "bg-slate-400 dark:bg-slate-500",
-    label: "text-slate-600 dark:text-slate-300",
-    chip: "bg-slate-100 text-slate-600 ring-slate-200/70 dark:bg-slate-400/15 dark:text-slate-300 dark:ring-slate-400/25",
-    rail: "bg-slate-300 dark:bg-slate-500",
-    hex: "#94a3b8",
-  },
+  Research: { ...NEUTRAL, hex: "#3c4043" },
+  Releases: { ...NEUTRAL, hex: "#5f6368" },
+  News: { ...NEUTRAL, hex: "#80868b" },
+  Discussion: { ...NEUTRAL, hex: "#9aa0a6" },
+  Other: { ...NEUTRAL, hex: "#bdc1c6" },
 };

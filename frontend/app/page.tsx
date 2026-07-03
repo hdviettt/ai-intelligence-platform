@@ -14,7 +14,6 @@ const EXAMPLES = [
   "What did OpenAI release recently?",
   "Latest LLM agent benchmarks",
   "Open-source model releases",
-  "AI governance and safety",
 ];
 
 export default async function Home({
@@ -34,9 +33,8 @@ export default async function Home({
     : personas[0]?.key ?? "ceo";
 
   return (
-    <div className="relative min-h-screen">
-      {/* Header — wordmark left, control-panel link + theme toggle right */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
+    <div className="min-h-screen">
+      <header className="mx-auto flex max-w-3xl items-center justify-between px-4 py-5 sm:px-6">
         <Wordmark />
         <div className="flex items-center gap-1">
           <a href="/admin" className="md-btn md-btn-text">
@@ -46,70 +44,58 @@ export default async function Home({
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 sm:px-6">
-        {/* Hero — Google-style: live-status pill, light display headline,
-            pill search bar, example chips, then the corpus scale strip. */}
-        <section className="relative flex flex-col items-center pt-12 pb-10 text-center sm:pt-16">
-          <span className="fade-up mb-5 inline-flex items-center gap-2 rounded-full border border-md-outline-variant bg-md-surface-container-low px-3.5 py-1.5 md-label-medium text-md-on-surface-variant">
-            <span className="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400" />
-            Live engine for the AI beat
-          </span>
-
-          <h1 className="fade-up fade-up-1 text-4xl font-normal tracking-tight text-md-on-surface sm:text-5xl">
-            What <span className="text-md-primary">actually matters</span> in AI,
-            <br className="hidden sm:block" /> tailored to you
+      <main className="mx-auto max-w-3xl px-4 sm:px-6">
+        {/* Hero — a single quiet column: headline, one line of intent, the
+            search field, and a plain-text row of example queries. */}
+        <section className="flex flex-col items-center pt-16 pb-14 text-center sm:pt-24 sm:pb-20">
+          <h1 className="fade-up text-4xl font-normal leading-tight tracking-tight text-md-on-surface sm:text-5xl">
+            What <span className="text-md-primary">actually matters</span> in AI
           </h1>
-          <p className="fade-up fade-up-2 mt-4 max-w-xl md-body-large text-md-on-surface-variant">
-            Not a firehose. A curated read on the AI beat, scored and ranked for
-            who you are — with the &ldquo;so what&rdquo; spelled out. Ask anything,
-            or scan today&rsquo;s signal below.
+          <p className="fade-up fade-up-1 mt-5 max-w-lg md-body-large text-md-on-surface-variant">
+            A curated, ranked read on the AI beat — tailored to who you are, with
+            the “so what” spelled out. Ask anything, or scan today’s signal.
           </p>
 
-          <div className="fade-up fade-up-2 mt-8 w-full max-w-2xl">
+          <div className="fade-up fade-up-2 mt-9 w-full max-w-2xl">
             <SearchBar autoFocus size="lg" />
           </div>
 
-          <div className="fade-up fade-up-3 mt-4 flex flex-wrap justify-center gap-2">
+          <div className="fade-up fade-up-2 mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 md-label-medium text-md-on-surface-variant/70">
+            <span>Try</span>
             {EXAMPLES.map((ex) => (
               <a
                 key={ex}
                 href={`/search?q=${encodeURIComponent(ex)}`}
-                className="rounded-full border border-md-outline-variant bg-md-surface px-3.5 py-1.5 md-body-medium text-md-on-surface-variant transition-all duration-200 ease-md-standard hover:border-md-primary/40 hover:text-md-primary hover:shadow-md-1 cursor-pointer"
+                className="text-md-on-surface-variant underline-offset-4 transition-colors duration-200 hover:text-md-primary hover:underline cursor-pointer"
               >
                 {ex}
               </a>
             ))}
           </div>
-
-          <div className="fade-up fade-up-3 mt-8 w-full border-t border-md-outline-variant pt-6">
-            <Suspense fallback={null}>
-              <CorpusStrip />
-            </Suspense>
-          </div>
         </section>
 
-        {/* Persona lens picker */}
-        <section className="pb-6">
-          <div className="mb-6 flex flex-col items-center gap-3">
-            <span className="md-label-medium uppercase text-md-on-surface-variant/70">
-              Choose your lens
-            </span>
+        {/* Corpus scale — quiet proof this is a real engine. */}
+        <section className="border-t border-md-outline-variant py-10">
+          <Suspense fallback={null}>
+            <CorpusStrip />
+          </Suspense>
+        </section>
+
+        {/* Persona-tailored signal feed — the substance. */}
+        <section className="border-t border-md-outline-variant py-14 sm:py-16">
+          <div className="mb-8 flex justify-center">
             <PersonaSwitcher personas={personas} active={active} />
           </div>
-        </section>
-
-        {/* Feed + trending rail */}
-        <section className="grid gap-8 pb-24 lg:grid-cols-[1fr_340px]">
           <Suspense key={active} fallback={<FeedSkeleton />}>
             <PersonaFeed persona={active} />
           </Suspense>
-          <div className="hidden lg:block">
-            <div className="sticky top-6">
-              <Suspense fallback={null}>
-                <TrendingRail compact />
-              </Suspense>
-            </div>
-          </div>
+        </section>
+
+        {/* Trending — at the foot, quiet and condensed. */}
+        <section className="border-t border-md-outline-variant py-14 pb-24">
+          <Suspense fallback={null}>
+            <TrendingRail />
+          </Suspense>
         </section>
       </main>
     </div>
@@ -118,9 +104,12 @@ export default async function Home({
 
 function FeedSkeleton() {
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="rounded-2xl border border-md-outline-variant bg-md-surface-container-low p-5">
+        <div
+          key={i}
+          className="rounded-2xl border border-md-outline-variant bg-md-surface-container-low p-6"
+        >
           <div className="mb-3 h-4 w-24 rounded shimmer" />
           <div className="mb-2 h-4 w-3/4 rounded shimmer" />
           <div className="h-3.5 w-full rounded shimmer" />

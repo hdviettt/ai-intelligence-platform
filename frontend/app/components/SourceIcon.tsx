@@ -15,7 +15,7 @@ export function SourceIcon({ url, size = 16 }: { url: string; size?: number }) {
         width={size}
         height={size}
         loading="lazy"
-        className="h-full w-full object-cover"
+        className="h-full w-full object-cover opacity-90 grayscale transition-[filter] duration-200 group-hover:grayscale-0"
       />
       <span className="sr-only">{host}</span>
     </span>

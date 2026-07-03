@@ -3,8 +3,8 @@ import { THEME_STYLES } from "@/lib/format";
 const ORDER = ["Research", "Releases", "News", "Discussion", "Other"];
 
 // Donut of corpus theme distribution. Diversity at a glance.
-// Colors come straight from THEME_STYLES so this stays in lockstep with
-// every other theme chip/rail in the app (Google blue/green/amber/cyan/grey).
+// Slices use the neutral grey ramp from THEME_STYLES so the chart reads as one
+// calm family; the legend swatch matches each slice's exact shade.
 export function ThemeDonut({
   themes,
 }: {
@@ -62,7 +62,10 @@ export function ThemeDonut({
             const style = THEME_STYLES[s.t] ?? THEME_STYLES.Other;
             return (
               <div key={s.t} className="flex items-center gap-2 text-sm">
-                <span className={`h-2.5 w-2.5 rounded-full ${style.dot}`} />
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ background: style.hex }}
+                />
                 <span className="text-md-on-surface-variant">{s.t}</span>
                 <span className="ml-auto tabular-nums text-md-on-surface">
                   {s.v.toLocaleString()}

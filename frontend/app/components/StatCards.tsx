@@ -51,20 +51,21 @@ export function StatCards({
   sources: number;
 }) {
   const coverage = total ? Math.round((embedded / total) * 100) : 0;
-  // Google's four brand hues, used here exactly as the design system intends:
-  // a restrained categorical accent per stat, not a decorative rainbow.
+  // Monochrome: one neutral ink for every stat icon and bar — the numbers
+  // carry the weight, not a categorical rainbow.
+  const accent = "#5f6368";
   const stats: Stat[] = [
-    { label: "Articles", value: total, accent: "#4285F4", icon: "article" },
+    { label: "Articles", value: total, accent, icon: "article" },
     {
       label: "Embedded",
       value: embedded,
-      accent: "#34A853",
+      accent,
       icon: "hub",
       hint: `${coverage}% coverage`,
       progress: coverage,
     },
-    { label: "Chunks", value: chunks, accent: "#F9AB00", icon: "view_module" },
-    { label: "Sources", value: sources, accent: "#EA4335", icon: "dns" },
+    { label: "Chunks", value: chunks, accent, icon: "view_module" },
+    { label: "Sources", value: sources, accent, icon: "dns" },
   ];
   return (
     <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">

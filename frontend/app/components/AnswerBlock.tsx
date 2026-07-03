@@ -5,13 +5,12 @@ import { Icon } from "./Icon";
 export function AnswerBlock({ data }: { data: SearchResponse }) {
   return (
     <section className="fade-up overflow-hidden rounded-2xl border border-md-outline-variant bg-md-surface-container-low shadow-md-1">
-      <div className="flex items-center gap-2.5 border-b border-md-outline-variant bg-md-primary-container/30 px-5 py-3.5 sm:px-6">
+      <div className="flex items-center gap-2.5 border-b border-md-outline-variant bg-md-surface-container px-5 py-3.5 sm:px-6">
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-md-primary text-md-on-primary">
           <Icon name="auto_awesome" size={16} filled />
         </span>
         <h2 className="md-title-medium text-md-on-surface">AI Overview</h2>
-        <span className="ml-auto flex items-center gap-1.5 rounded-full bg-md-surface px-2.5 py-1 md-label-small text-md-on-surface-variant ring-1 ring-md-outline-variant">
-          <span className="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400" />
+        <span className="ml-auto md-label-small text-md-on-surface-variant/70">
           synthesized · {data.provider}
         </span>
       </div>

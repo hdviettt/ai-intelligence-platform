@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-// Mark: four signal dots (Google's own brand palette) converging on one
-// synthesized center — "many sources, one read." No gradients, no violet.
+// Mark: four neutral source dots converging on one blue synthesized center —
+// "many sources, one read." Monochrome by design; the single accent is the
+// synthesis at the middle, nothing else.
 export function Wordmark({ size = "sm" }: { size?: "sm" | "lg" }) {
   const dim = size === "lg" ? "h-9 w-9" : "h-7 w-7";
   const text = size === "lg" ? "md-title-large" : "md-title-medium";
@@ -12,11 +13,11 @@ export function Wordmark({ size = "sm" }: { size?: "sm" | "lg" }) {
         aria-hidden
       >
         <svg viewBox="0 0 24 24" className="h-full w-full">
-          <circle cx="12" cy="5.25" r="2" fill="#4285F4" />
-          <circle cx="18.75" cy="12" r="2" fill="#34A853" />
-          <circle cx="12" cy="18.75" r="2" fill="#FBBC05" />
-          <circle cx="5.25" cy="12" r="2" fill="#EA4335" />
-          <circle cx="12" cy="12" r="3.25" className="fill-md-on-surface" />
+          <circle cx="12" cy="5.25" r="2" className="fill-md-outline" />
+          <circle cx="18.75" cy="12" r="2" className="fill-md-outline" />
+          <circle cx="12" cy="18.75" r="2" className="fill-md-outline" />
+          <circle cx="5.25" cy="12" r="2" className="fill-md-outline" />
+          <circle cx="12" cy="12" r="3.25" className="fill-md-primary" />
         </svg>
       </span>
       <span className={`${text} tracking-tight text-md-on-surface`}>

@@ -2,11 +2,12 @@ import type { PipelineRun } from "@/lib/api";
 import { timeAgo } from "@/lib/format";
 import { Icon } from "./Icon";
 
+// Trigger type is minor metadata — a single neutral chip, no categorical hues.
 const TRIGGER_STYLE: Record<string, string> = {
-  cron: "bg-blue-100 text-blue-700 dark:bg-blue-400/15 dark:text-blue-300",
-  admin: "bg-green-100 text-green-700 dark:bg-green-400/15 dark:text-green-300",
+  cron: "bg-md-surface-container text-md-on-surface-variant",
+  admin: "bg-md-surface-container text-md-on-surface-variant",
   cli: "bg-md-surface-container text-md-on-surface-variant",
-  baseline: "bg-amber-100 text-amber-800 dark:bg-amber-400/15 dark:text-amber-300",
+  baseline: "bg-md-surface-container text-md-on-surface-variant",
 };
 
 // What each trigger changed: net corpus delta + which sources contributed.
@@ -47,7 +48,7 @@ export function PipelineRuns({ runs }: { runs: PipelineRun[] }) {
                   {r.total_after.toLocaleString()}
                 </span>
                 {delta > 0 && (
-                  <span className="ml-1.5 text-green-700 dark:text-green-400">
+                  <span className="ml-1.5 text-md-on-surface">
                     +{delta.toLocaleString()}
                   </span>
                 )}
@@ -62,7 +63,7 @@ export function PipelineRuns({ runs }: { runs: PipelineRun[] }) {
                 {contributors.map((s) => (
                   <span
                     key={s.source}
-                    className="rounded-md bg-green-50 px-2 py-0.5 text-xs text-green-700 dark:bg-green-400/15 dark:text-green-300"
+                    className="rounded-md bg-md-surface-container px-2 py-0.5 text-xs text-md-on-surface-variant"
                   >
                     {s.source} +{s.inserted}
                   </span>

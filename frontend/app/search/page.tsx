@@ -6,7 +6,6 @@ import { SearchBar } from "../components/SearchBar";
 import { TrendingRail } from "../components/TrendingRail";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { Wordmark } from "../components/Wordmark";
-import { Icon } from "../components/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -34,11 +33,10 @@ async function Results({ q }: { q: string }) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {data.answer && <AnswerBlock data={data} />}
       <div>
-        <h2 className="mb-4 flex items-center gap-2 md-title-small text-md-on-surface">
-          <Icon name="reorder" size={18} className="text-md-on-surface-variant" />
+        <h2 className="mb-5 md-title-small text-md-on-surface-variant">
           Sources, organized by theme
         </h2>
         <ResultGroups results={data.results} />
@@ -58,7 +56,7 @@ export default async function SearchPage({
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-20 border-b border-md-outline-variant bg-md-background/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
+        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6">
           <div className="shrink-0">
             <Wordmark />
           </div>
@@ -69,33 +67,31 @@ export default async function SearchPage({
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 sm:px-6">
+      <main className="mx-auto max-w-3xl px-4 sm:px-6">
         {!query ? (
           <p className="py-24 text-center md-body-large text-md-on-surface-variant">
             Type a question to begin.
           </p>
         ) : (
           <>
-            <div className="border-b border-md-outline-variant py-4">
-              <p className="md-body-medium text-md-on-surface-variant">
+            <div className="border-b border-md-outline-variant py-5">
+              <p className="md-label-medium text-md-on-surface-variant/70">
                 Results for{" "}
                 <span className="font-medium text-md-on-surface">
                   &ldquo;{query}&rdquo;
                 </span>
               </p>
             </div>
-            <div className="grid gap-8 py-7 lg:grid-cols-[1fr_340px]">
+            <div className="py-8">
               <Suspense key={query} fallback={<AnswerSkeleton />}>
                 <Results q={query} />
               </Suspense>
-              <div className="hidden lg:block">
-                <div className="sticky top-24">
-                  <Suspense fallback={null}>
-                    <TrendingRail compact />
-                  </Suspense>
-                </div>
-              </div>
             </div>
+            <section className="border-t border-md-outline-variant py-12 pb-24">
+              <Suspense fallback={null}>
+                <TrendingRail />
+              </Suspense>
+            </section>
           </>
         )}
       </main>
