@@ -9,7 +9,7 @@ from dataclasses import asdict
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 
-from app import pipeline
+from app import briefing, pipeline
 from app.config import get_settings
 from app.db import get_connection
 from app.ingest import base
@@ -290,4 +290,34 @@ def trigger(body: TriggerIn | None = None,
         ok=True,
         sources=[asdict(i) for i in result.ingests],
         embedded=result.embedded,
+    )
+
+
+# --- briefing trigger (token-gated) ---
+
+class BriefingTriggerIn(BaseModel):
+    kind: str = "daily"          # 'daily' | 'weekly'
+    days: int | None = None      # override the look-back window
+
+
+class BriefingTriggerResult(BaseModel):
+    ok: bool
+    kind: str
+    article_count: int
+    provider: str
+    chars: int
+
+
+@router.post("/briefing", response_model=BriefingTriggerResult)
+def trigger_briefing(body: BriefingTriggerIn | None = None,
+                     x_admin_token: str = Header(default="")) -> BriefingTriggerResult:
+    """Generate + store a fresh briefing now. Ensures the table exists first so this
+    works on a fresh prod DB without a separate migrate step."""
+    _require_admin(x_admin_token)
+    body = body or BriefingTriggerIn()
+    briefing.ensure_schema()
+    b = briefing.generate_and_save(kind=body.kind, days=body.days)
+    return BriefingTriggerResult(
+        ok=bool(b.citations), kind=b.kind, article_count=b.article_count,
+        provider=b.provider, chars=len(b.narrative),
     )

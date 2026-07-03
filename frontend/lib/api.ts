@@ -59,6 +59,25 @@ export async function getTrending(limit = 10): Promise<Trending[]> {
   return res.json();
 }
 
+// --- Daily / weekly briefing (the auto-generated "what's new + so what") ---
+
+export type Briefing = {
+  kind: string;
+  narrative: string;
+  citations: Citation[];
+  window_start: string | null;
+  window_end: string | null;
+  article_count: number;
+  provider: string;
+  generated_at: string | null;
+};
+
+export async function getBriefing(kind = "daily"): Promise<Briefing | null> {
+  const res = await fetch(`${BASE}/briefing?kind=${kind}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`briefing failed: ${res.status}`);
+  return res.json(); // null when none has been generated yet
+}
+
 // --- Personas & feed (the signal layer) ---
 
 export type Persona = {
@@ -247,5 +266,13 @@ export async function deleteSource(token: string, id: number): Promise<Response>
   return fetch(`${BASE}/admin/sources/${id}`, {
     method: "DELETE",
     headers: authHeaders(token),
+  });
+}
+
+export async function triggerBriefing(token: string, kind = "daily"): Promise<Response> {
+  return fetch(`${BASE}/admin/briefing`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify({ kind }),
   });
 }

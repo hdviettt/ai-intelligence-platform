@@ -6,6 +6,7 @@ import { CorpusStrip } from "./components/CorpusStrip";
 import { Wordmark } from "./components/Wordmark";
 import { PersonaSwitcher } from "./components/PersonaSwitcher";
 import { PersonaFeed } from "./components/PersonaFeed";
+import { DailyBriefing, BriefingSkeleton } from "./components/DailyBriefing";
 import { ThemeToggle } from "./components/ThemeToggle";
 
 export const dynamic = "force-dynamic";
@@ -73,6 +74,12 @@ export default async function Home({
             ))}
           </div>
         </section>
+
+        {/* The daily brief — auto-generated "what's new + so what". Renders only
+            once a briefing exists, so it's safe before the first run. */}
+        <Suspense fallback={<BriefingSkeleton />}>
+          <DailyBriefing />
+        </Suspense>
 
         {/* Corpus scale — quiet proof this is a real engine. */}
         <section className="border-t border-md-outline-variant py-10">

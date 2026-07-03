@@ -4,7 +4,7 @@
     "builder": "RAILPACK"
   },
   "deploy": {
-    "startCommand": "python scripts/pipeline.py --max 40",
+    "startCommand": "python scripts/pipeline.py --max 40 && python scripts/brief.py daily",
     "cronSchedule": "0 */6 * * *",
     "restartPolicyType": "NEVER"
   }

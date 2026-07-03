@@ -3,7 +3,7 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from app import discovery, feed, personas, retrieval, synthesis
+from app import briefing, discovery, feed, personas, retrieval, synthesis
 from app.admin import router as admin_router
 
 app = FastAPI(title="ai-search-experience")
@@ -147,6 +147,46 @@ class TrendingOut(BaseModel):
     theme: str
     published_at: str | None
     heat: float
+
+
+# --- daily/weekly briefing ---
+
+class BriefingCitationOut(BaseModel):
+    n: int
+    title: str
+    url: str
+    source: str
+
+
+class BriefingOut(BaseModel):
+    kind: str
+    narrative: str
+    citations: list[BriefingCitationOut]
+    window_start: str | None
+    window_end: str | None
+    article_count: int
+    provider: str
+    generated_at: str | None
+
+
+@app.get("/briefing", response_model=BriefingOut | None)
+def get_briefing(kind: str = "daily") -> BriefingOut | None:
+    b = briefing.latest(kind)
+    if not b:
+        return None
+    return BriefingOut(
+        kind=b.kind,
+        narrative=b.narrative,
+        citations=[
+            BriefingCitationOut(n=c.n, title=c.title, url=c.url, source=c.source)
+            for c in b.citations
+        ],
+        window_start=str(b.window_start) if b.window_start else None,
+        window_end=str(b.window_end) if b.window_end else None,
+        article_count=b.article_count,
+        provider=b.provider,
+        generated_at=str(b.generated_at) if b.generated_at else None,
+    )
 
 
 @app.get("/trending", response_model=list[TrendingOut])
