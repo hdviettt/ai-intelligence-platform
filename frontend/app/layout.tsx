@@ -1,20 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Roboto, Roboto_Mono } from "next/font/google";
+import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
-// Roboto is Google/Android's own typographic signature — the closest real
-// Google Fonts entry to "Google Sans" without inventing a font that doesn't
-// ship publicly. Roboto Mono covers code / JSON editing in the admin panel.
-const roboto = Roboto({
-  variable: "--font-roboto",
+// DM Sans is the closest open-source match to "Google Sans" (the font Google
+// uses on Search, Workspace, blog.google, etc.) — "Google Sans" itself isn't
+// a published Google Font and can't be loaded via next/font. JetBrains Mono
+// covers code / tabular admin surfaces. Same pairing as personal-blog.
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
-  weight: "variable",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
-const robotoMono = Roboto_Mono({
-  variable: "--font-roboto-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
-  weight: "variable",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -25,7 +27,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8f9fa" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#131314" },
   ],
   colorScheme: "light dark",
@@ -51,17 +53,26 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${roboto.variable} ${roboto.className} ${robotoMono.variable} antialiased`}
-        suppressHydrationWarning
-      >
+    <html
+      lang="en"
+      className={`${dmSans.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+        />
+      </head>
+      <body className="bg-md-background text-md-on-surface font-sans antialiased" suppressHydrationWarning>
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT}
         </Script>
         {children}
-        <footer className="border-t border-border">
-          <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-6 py-6 text-xs text-muted-2 sm:flex-row">
+        <footer className="border-t border-md-outline-variant">
+          <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-6 py-6 md-body-small text-md-on-surface-variant sm:flex-row">
             <span>AI Search — an understanding engine for the AI beat.</span>
             <span>Indexed hourly · papers · releases · news · discussion</span>
           </div>

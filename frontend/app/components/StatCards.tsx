@@ -1,34 +1,36 @@
+import { Icon } from "./Icon";
+
 type Stat = {
   label: string;
   value: number;
   hint?: string;
   accent: string;
-  icon: React.ReactNode;
+  icon: string;
   progress?: number; // 0-100, draws a bar
 };
 
 function Card({ s }: { s: Stat }) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-border bg-surface p-5 transition-shadow duration-200 ease-[var(--ease-standard)] hover:shadow-[var(--shadow-sm)]">
+    <div className="relative overflow-hidden rounded-xl border border-md-outline-variant bg-md-surface-container-low p-5 transition-shadow duration-200 ease-md-standard hover:shadow-md-1">
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-3xl font-semibold tabular-nums tracking-tight text-foreground">
+          <div className="text-3xl font-medium tabular-nums tracking-tight text-md-on-surface">
             {s.value.toLocaleString()}
           </div>
-          <div className="mt-0.5 text-xs text-muted">{s.label}</div>
+          <div className="mt-0.5 md-label-small text-md-on-surface-variant">{s.label}</div>
         </div>
         <span
           className="flex h-8 w-8 items-center justify-center rounded-full"
           style={{ background: `${s.accent}1f`, color: s.accent }}
         >
-          {s.icon}
+          <Icon name={s.icon} size={18} />
         </span>
       </div>
-      {s.hint && <div className="mt-2 text-xs text-muted">{s.hint}</div>}
+      {s.hint && <div className="mt-2 md-label-small text-md-on-surface-variant">{s.hint}</div>}
       {typeof s.progress === "number" && (
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2">
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-md-surface-container">
           <div
-            className="h-full rounded-full transition-[width] duration-500 ease-[var(--ease-emphasized)]"
+            className="h-full rounded-full transition-[width] duration-500 ease-md-emphasized"
             style={{ width: `${s.progress}%`, background: s.accent }}
           />
         </div>
@@ -36,33 +38,6 @@ function Card({ s }: { s: Stat }) {
     </div>
   );
 }
-
-const I = {
-  doc: (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M7 3h7l5 5v13H7z" strokeLinejoin="round" />
-      <path d="M14 3v5h5" strokeLinejoin="round" />
-    </svg>
-  ),
-  vector: (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="6" cy="6" r="2.5" /><circle cx="18" cy="18" r="2.5" />
-      <path d="M8 8l8 8" strokeLinecap="round" />
-    </svg>
-  ),
-  chunk: (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" />
-      <rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" />
-    </svg>
-  ),
-  source: (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 2v4M12 18v4M2 12h4M18 12h4" strokeLinecap="round" />
-    </svg>
-  ),
-};
 
 export function StatCards({
   total,
@@ -79,17 +54,17 @@ export function StatCards({
   // Google's four brand hues, used here exactly as the design system intends:
   // a restrained categorical accent per stat, not a decorative rainbow.
   const stats: Stat[] = [
-    { label: "Articles", value: total, accent: "#4285F4", icon: I.doc },
+    { label: "Articles", value: total, accent: "#4285F4", icon: "article" },
     {
       label: "Embedded",
       value: embedded,
       accent: "#34A853",
-      icon: I.vector,
+      icon: "hub",
       hint: `${coverage}% coverage`,
       progress: coverage,
     },
-    { label: "Chunks", value: chunks, accent: "#F9AB00", icon: I.chunk },
-    { label: "Sources", value: sources, accent: "#EA4335", icon: I.source },
+    { label: "Chunks", value: chunks, accent: "#F9AB00", icon: "view_module" },
+    { label: "Sources", value: sources, accent: "#EA4335", icon: "dns" },
   ];
   return (
     <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">

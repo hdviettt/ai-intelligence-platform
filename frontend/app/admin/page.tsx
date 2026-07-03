@@ -27,7 +27,7 @@ export default async function AdminPage() {
   } catch {
     return (
       <main className="mx-auto max-w-5xl px-6 py-16">
-        <p className="text-sm text-muted">Couldn’t reach the backend.</p>
+        <p className="md-body-medium text-md-on-surface-variant">Couldn’t reach the backend.</p>
       </main>
     );
   }
@@ -38,9 +38,9 @@ export default async function AdminPage() {
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <header className="mb-6 flex items-center gap-3">
         <Wordmark />
-        <span className="text-muted">/</span>
-        <h1 className="font-medium text-foreground">Control panel</h1>
-        <span className="ml-auto rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 dark:bg-green-400/15 dark:text-green-300">
+        <span className="text-md-on-surface-variant">/</span>
+        <h1 className="md-title-large text-md-on-surface">Control panel</h1>
+        <span className="ml-auto rounded-full bg-green-50 px-2.5 py-1 md-label-small text-green-700 dark:bg-green-400/15 dark:text-green-300">
           live
         </span>
         <ThemeToggle />
@@ -54,7 +54,7 @@ export default async function AdminPage() {
       />
 
       <section className="mt-6">
-        <h2 className="mb-2.5 text-sm font-semibold text-foreground">
+        <h2 className="mb-2.5 md-title-small text-md-on-surface">
           Content coverage over time
         </h2>
         <CoverageChart points={coverage} />
@@ -66,12 +66,12 @@ export default async function AdminPage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="mb-2.5 text-sm font-semibold text-foreground">Sources</h2>
+        <h2 className="mb-2.5 md-title-small text-md-on-surface">Sources</h2>
         <SourcesManager />
       </section>
 
       <section className="mt-8">
-        <h2 className="mb-2.5 text-sm font-semibold text-foreground">
+        <h2 className="mb-2.5 md-title-small text-md-on-surface">
           What each trigger changed
         </h2>
         <PipelineRuns runs={pipelineRuns} />

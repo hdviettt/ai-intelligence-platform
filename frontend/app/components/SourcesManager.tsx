@@ -9,6 +9,7 @@ import {
   ADMIN_BASE,
   type Source,
 } from "@/lib/api";
+import { Icon } from "./Icon";
 
 const CONNECTORS = ["rss", "arxiv", "hackernews"] as const;
 const TYPES = ["paper", "release", "news", "discussion"] as const;
@@ -170,21 +171,22 @@ export function SourcesManager() {
           onChange={(e) => saveToken(e.target.value)}
           placeholder="Admin token"
           aria-label="Admin token"
-          className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft"
+          className="md-field-dense flex-1"
         />
         <button
           onClick={() => runIngest()}
           disabled={busy || token.length < 4}
-          className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-colors duration-150 ease-[var(--ease-standard)] hover:shadow-[var(--shadow-xs)] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          className="md-btn md-btn-filled md-btn-pill md-btn-sm"
         >
+          <Icon name="play_arrow" size={16} />
           Ingest all
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border">
+      <div className="overflow-hidden rounded-xl border border-md-outline-variant">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-surface-2 text-xs text-muted">
+            <tr className="border-b border-md-outline-variant bg-md-surface-container md-label-small text-md-on-surface-variant">
               <th className="px-3 py-2 text-left font-medium">Source</th>
               <th className="px-3 py-2 text-left font-medium">Connector</th>
               <th className="px-3 py-2 text-left font-medium">Type</th>
@@ -194,29 +196,37 @@ export function SourcesManager() {
           </thead>
           <tbody>
             {sources.map((s) => (
-              <tr key={s.id} className="border-b border-border bg-surface last:border-0">
+              <tr key={s.id} className="border-b border-md-outline-variant bg-md-surface last:border-0">
                 <td className="px-3 py-2">
                   <span className="flex items-center gap-2">
                     <span
-                      className={`h-2 w-2 rounded-full ${s.enabled ? "bg-green-600 dark:bg-green-400" : "bg-slate-300 dark:bg-slate-600"}`}
+                      className={`h-2 w-2 rounded-full ${s.enabled ? "bg-green-600 dark:bg-green-400" : "bg-md-outline"}`}
                     />
-                    <span className="text-foreground">{s.name}</span>
+                    <span className="text-md-on-surface">{s.name}</span>
                   </span>
                 </td>
-                <td className="px-3 py-2 text-muted">{s.connector}</td>
-                <td className="px-3 py-2 text-muted">{s.source_type}</td>
-                <td className="px-3 py-2 text-right tabular-nums text-foreground">{s.max_results}</td>
+                <td className="px-3 py-2 text-md-on-surface-variant">{s.connector}</td>
+                <td className="px-3 py-2 text-md-on-surface-variant">{s.source_type}</td>
+                <td className="px-3 py-2 text-right tabular-nums text-md-on-surface">{s.max_results}</td>
                 <td className="px-3 py-2">
-                  <div className="flex justify-end gap-2 text-xs">
+                  <div className="flex justify-end gap-3 text-xs">
                     <button onClick={() => runIngest(s.name)} disabled={busy}
-                      className="text-accent hover:underline cursor-pointer disabled:opacity-40">run</button>
+                      className="inline-flex items-center gap-1 text-md-primary hover:underline cursor-pointer disabled:opacity-40">
+                      <Icon name="play_arrow" size={14} />run
+                    </button>
                     <button onClick={() => toggle(s)} disabled={busy}
-                      className="text-muted hover:text-foreground cursor-pointer disabled:opacity-40">
-                      {s.enabled ? "disable" : "enable"}</button>
+                      className="inline-flex items-center gap-1 text-md-on-surface-variant hover:text-md-on-surface cursor-pointer disabled:opacity-40">
+                      <Icon name={s.enabled ? "toggle_on" : "toggle_off"} size={14} filled={s.enabled} />
+                      {s.enabled ? "disable" : "enable"}
+                    </button>
                     <button onClick={() => startEdit(s)} disabled={busy}
-                      className="text-muted hover:text-foreground cursor-pointer disabled:opacity-40">edit</button>
+                      className="inline-flex items-center gap-1 text-md-on-surface-variant hover:text-md-on-surface cursor-pointer disabled:opacity-40">
+                      <Icon name="edit" size={14} />edit
+                    </button>
                     <button onClick={() => remove(s)} disabled={busy}
-                      className="text-red-600 hover:underline cursor-pointer disabled:opacity-40 dark:text-red-400">del</button>
+                      className="inline-flex items-center gap-1 text-red-600 hover:underline cursor-pointer disabled:opacity-40 dark:text-red-400">
+                      <Icon name="delete" size={14} />del
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -225,70 +235,70 @@ export function SourcesManager() {
         </table>
       </div>
 
-      <div className="rounded-[28px] border border-border bg-surface p-5">
-        <h3 className="text-sm font-semibold text-foreground">
+      <div className="rounded-2xl border border-md-outline-variant bg-md-surface-container-low p-5">
+        <h3 className="md-title-small text-md-on-surface">
           {editId ? "Edit source" : "Add source"}
         </h3>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <label className="text-xs text-muted">
+          <label className="md-label-small text-md-on-surface-variant">
             Name
             <input
               value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent"
+              className="md-field-dense mt-1 w-full"
             />
           </label>
-          <label className="text-xs text-muted">
+          <label className="md-label-small text-md-on-surface-variant">
             Max results
             <input
               type="number"
               value={draft.max_results}
               onChange={(e) => setDraft({ ...draft, max_results: Number(e.target.value) })}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent"
+              className="md-field-dense mt-1 w-full"
             />
           </label>
-          <label className="text-xs text-muted">
+          <label className="md-label-small text-md-on-surface-variant">
             Connector
             <select
               value={draft.connector}
               onChange={(e) => setDraft({ ...draft, connector: e.target.value as Source["connector"] })}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent cursor-pointer"
+              className="md-field-dense mt-1 w-full cursor-pointer"
             >
               {CONNECTORS.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </label>
-          <label className="text-xs text-muted">
+          <label className="md-label-small text-md-on-surface-variant">
             Theme / type
             <select
               value={draft.source_type}
               onChange={(e) => setDraft({ ...draft, source_type: e.target.value as Source["source_type"] })}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent cursor-pointer"
+              className="md-field-dense mt-1 w-full cursor-pointer"
             >
               {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           </label>
         </div>
-        <label className="mt-3 block text-xs text-muted">
+        <label className="mt-3 block md-label-small text-md-on-surface-variant">
           Config (JSON) — rss: {`{feed_url, base_url}`} · arxiv: {`{categories:[…]}`} · hackernews: {`{query, min_points}`}
           <textarea
             value={draft.configText}
             onChange={(e) => setDraft({ ...draft, configText: e.target.value })}
             rows={4}
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 font-mono text-xs text-foreground outline-none focus:border-accent"
+            className="md-field-dense mt-1 w-full font-mono text-xs"
           />
         </label>
         <div className="mt-3 flex gap-2">
           <button
             onClick={submitDraft}
             disabled={busy || token.length < 4 || draft.name.trim().length < 2}
-            className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-colors duration-150 ease-[var(--ease-standard)] hover:shadow-[var(--shadow-xs)] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            className="md-btn md-btn-filled md-btn-pill md-btn-sm"
           >
             {editId ? "Save changes" : "Add source"}
           </button>
           {editId && (
             <button
               onClick={() => { setEditId(null); setDraft(BLANK); }}
-              className="rounded-full border border-border px-4 py-2 text-sm text-muted hover:bg-surface-2 hover:text-foreground cursor-pointer"
+              className="md-btn md-btn-outlined md-btn-pill md-btn-sm"
             >
               Cancel
             </button>
@@ -296,7 +306,7 @@ export function SourcesManager() {
         </div>
       </div>
 
-      {msg && <p className="text-xs text-muted">{msg}</p>}
+      {msg && <p className="md-label-small text-md-on-surface-variant">{msg}</p>}
     </div>
   );
 }

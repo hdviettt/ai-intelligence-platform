@@ -4,105 +4,231 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================================
-   Material 3 design tokens — Google Search / AI Mode flavored.
-   Seed color: Google Blue #4285F4. `--accent` is the tone-40
-   derivative used for text/icon/button-fill contexts so body
-   copy and labels clear WCAG AA (4.5:1); the literal brand hex
-   is kept as `--accent-brand` for decorative use only (logo
-   dots, chart accents, focus glow) where 3:1 is the bar.
+   MATERIAL DESIGN 3 — DESIGN TOKENS
+   Ported verbatim from personal-blog (source of truth for this
+   app's visual language). Reference: m3.material.io
+   Primary: Google Blue #1A73E8 — override --md-sys-color-primary
+   to rebrand; every other role derives from the M3 roles below.
    ============================================================ */
 :root {
-  /* Surfaces (M3 surface / surface-container roles) */
-  --background: #f8f9fa;   /* app shell — Google Grey 50 */
-  --surface: #ffffff;      /* cards, inputs, headers */
-  --surface-2: #f1f3f4;    /* Grey 100 — hover / secondary surface */
-  --surface-3: #e8eaed;    /* Grey 200 — pressed / table header */
+  /* ----- M3 color roles (light) ----- */
+  --md-sys-color-primary: 217 89% 51%; /* #1A73E8 Google Blue */
+  --md-sys-color-on-primary: 0 0% 100%;
+  --md-sys-color-primary-container: 217 100% 92%;
+  --md-sys-color-on-primary-container: 217 100% 18%;
 
-  /* Text (M3 on-surface / on-surface-variant roles) */
-  --foreground: #1f1f1f;   /* Grey 900 — primary text */
-  --muted: #444746;        /* Grey 800 — secondary text */
-  --muted-2: #5f6368;      /* Grey 700 — tertiary / hint text */
+  --md-sys-color-secondary: 222 16% 35%;
+  --md-sys-color-on-secondary: 0 0% 100%;
+  --md-sys-color-secondary-container: 220 35% 92%;
+  --md-sys-color-on-secondary-container: 222 25% 20%;
 
-  /* Outline */
-  --border: #dadce0;       /* Grey 300 */
-  --border-strong: #bdc1c6; /* Grey 400 */
+  --md-sys-color-tertiary: 280 35% 45%;
+  --md-sys-color-on-tertiary: 0 0% 100%;
 
-  /* Primary — Google Blue */
-  --accent: #0b57d0;          /* AA-safe interactive blue (text, links, filled buttons) */
-  --accent-brand: #4285f4;    /* literal Google Blue — decorative only */
-  --on-accent: #ffffff;
-  --accent-soft: #d3e3fd;     /* primary-container — tonal chips */
-  --accent-soft-strong: #aecbfa;
+  --md-sys-color-error: 4 76% 49%;
+  --md-sys-color-on-error: 0 0% 100%;
 
-  /* Elevation — tint + soft shadow, never a heavy SaaS drop-shadow */
-  --shadow-xs: 0 1px 2px rgba(32, 33, 36, 0.05);
-  --shadow-sm: 0 1px 2px rgba(32, 33, 36, 0.05), 0 1px 3px 1px rgba(32, 33, 36, 0.08);
-  --shadow-md: 0 1px 2px rgba(32, 33, 36, 0.06), 0 2px 6px 2px rgba(32, 33, 36, 0.10);
-  --shadow-lg: 0 1px 3px rgba(32, 33, 36, 0.08), 0 4px 12px 4px rgba(32, 33, 36, 0.12);
+  --md-sys-color-background: 0 0% 100%;
+  --md-sys-color-on-background: 220 7% 12%; /* #1F1F1F */
 
-  /* Shape scale */
-  --shape-xs: 4px;
-  --shape-sm: 8px;
-  --shape-md: 12px;
-  --shape-lg: 16px;
-  --shape-xl: 28px;
+  --md-sys-color-surface: 0 0% 100%;
+  --md-sys-color-on-surface: 220 7% 12%;
+  --md-sys-color-surface-variant: 210 17% 98%; /* #F8F9FA */
+  --md-sys-color-on-surface-variant: 220 6% 36%;
 
-  /* Motion — M3 emphasized easing */
-  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
-  --ease-emphasized-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
-  --ease-emphasized-accel: cubic-bezier(0.3, 0, 0.8, 0.15);
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --dur-1: 100ms;
-  --dur-2: 200ms;
-  --dur-3: 350ms;
+  --md-sys-color-surface-container-lowest: 0 0% 100%;
+  --md-sys-color-surface-container-low: 210 17% 98%;
+  --md-sys-color-surface-container: 220 14% 96%;
+  --md-sys-color-surface-container-high: 220 13% 93%;
+  --md-sys-color-surface-container-highest: 220 13% 91%;
+
+  --md-sys-color-outline: 220 9% 86%; /* #DADCE0 */
+  --md-sys-color-outline-variant: 220 13% 93%;
+
+  --md-sys-color-inverse-surface: 220 7% 18%;
+  --md-sys-color-inverse-on-surface: 220 14% 96%;
+  --md-sys-color-inverse-primary: 217 95% 78%;
+
+  /* ----- M3 shape (corner radius) ----- */
+  --md-sys-shape-corner-none: 0;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+
+  /* ----- M3 elevation (light) ----- */
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --md-sys-elevation-level2: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --md-sys-elevation-level3: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  --md-sys-elevation-level4: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.06);
+  --md-sys-elevation-level5: 0 20px 25px -5px rgba(0, 0, 0, 0.10), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+
+  /* ----- M3 motion (easing + duration) ----- */
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-duration-short1: 50ms;
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-long1: 450ms;
+  --md-sys-motion-duration-long2: 500ms;
+
+  /* ----- Legacy app aliases (back-compat only; new code should use
+     the md-* Tailwind utilities bound below in @theme) ----- */
+  --ease-emphasized: var(--md-sys-motion-easing-emphasized);
+  --ease-emphasized-decel: var(--md-sys-motion-easing-emphasized-decelerate);
+  --ease-emphasized-accel: var(--md-sys-motion-easing-emphasized-accelerate);
+  --ease-standard: var(--md-sys-motion-easing-standard);
+  --shadow-xs: var(--md-sys-elevation-level1);
+  --shadow-sm: var(--md-sys-elevation-level2);
+  --shadow-md: var(--md-sys-elevation-level3);
+  --shadow-lg: var(--md-sys-elevation-level4);
 
   color-scheme: light;
 }
 
 .dark {
-  --background: #131314;
-  --surface: #1e1f20;
-  --surface-2: #282a2c;
-  --surface-3: #33353a;
+  /* ----- M3 color roles (dark) ----- */
+  --md-sys-color-primary: 217 95% 78%; /* lighter blue for dark surfaces */
+  --md-sys-color-on-primary: 217 100% 14%;
+  --md-sys-color-primary-container: 217 70% 30%;
+  --md-sys-color-on-primary-container: 217 100% 92%;
 
-  --foreground: #e3e3e3;
-  --muted: #c4c7c5;
-  --muted-2: #9aa0a6;
+  --md-sys-color-secondary: 220 18% 78%;
+  --md-sys-color-on-secondary: 222 25% 18%;
+  --md-sys-color-secondary-container: 222 18% 28%;
+  --md-sys-color-on-secondary-container: 220 35% 92%;
 
-  --border: #3c4043;
-  --border-strong: #5f6368;
+  --md-sys-color-tertiary: 280 45% 78%;
+  --md-sys-color-on-tertiary: 280 50% 18%;
 
-  --accent: #a8c7fa;           /* lighter M3 dark-scheme primary — reads on dark surfaces */
-  --accent-brand: #669df6;     /* brighter brand blue for decorative use in dark */
-  --on-accent: #062e6f;        /* dark navy text on the light dark-mode primary fill */
-  --accent-soft: rgba(168, 199, 250, 0.16);
-  --accent-soft-strong: rgba(168, 199, 250, 0.26);
+  --md-sys-color-error: 4 100% 80%;
+  --md-sys-color-on-error: 4 100% 16%;
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.28);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.24);
-  --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.34), 0 2px 6px 2px rgba(0, 0, 0, 0.28);
-  --shadow-lg: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 14px 4px rgba(0, 0, 0, 0.34);
+  --md-sys-color-background: 220 9% 8%; /* #131314 — Gemini-style deep neutral */
+  --md-sys-color-on-background: 220 13% 91%;
+
+  --md-sys-color-surface: 220 9% 8%;
+  --md-sys-color-on-surface: 220 13% 91%;
+  --md-sys-color-surface-variant: 220 8% 16%;
+  --md-sys-color-on-surface-variant: 220 8% 72%;
+
+  --md-sys-color-surface-container-lowest: 220 9% 5%;
+  --md-sys-color-surface-container-low: 220 9% 10%;
+  --md-sys-color-surface-container: 220 8% 13%;
+  --md-sys-color-surface-container-high: 220 8% 16%;
+  --md-sys-color-surface-container-highest: 220 8% 20%;
+
+  --md-sys-color-outline: 220 8% 38%;
+  --md-sys-color-outline-variant: 220 8% 22%;
+
+  --md-sys-color-inverse-surface: 220 13% 91%;
+  --md-sys-color-inverse-on-surface: 220 9% 12%;
+  --md-sys-color-inverse-primary: 217 89% 51%;
+
+  /* ----- M3 elevation (dark) — subtler shadows ----- */
+  --md-sys-elevation-level1: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+  --md-sys-elevation-level2: 0 1px 3px 0 rgba(0, 0, 0, 0.32), 0 1px 2px 0 rgba(0, 0, 0, 0.24);
+  --md-sys-elevation-level3: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.30);
+  --md-sys-elevation-level4: 0 10px 15px -3px rgba(0, 0, 0, 0.40), 0 4px 6px -4px rgba(0, 0, 0, 0.35);
+  --md-sys-elevation-level5: 0 20px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.40);
+
+  --shadow-xs: var(--md-sys-elevation-level1);
+  --shadow-sm: var(--md-sys-elevation-level2);
+  --shadow-md: var(--md-sys-elevation-level3);
+  --shadow-lg: var(--md-sys-elevation-level4);
 
   color-scheme: dark;
 }
 
+/* ============================================================
+   TAILWIND v4 THEME BINDING
+   Maps every M3 role / shape / elevation / motion token to a
+   Tailwind utility namespace (--color-*, --radius-*, --shadow-*,
+   --ease-*, --font-*) so classes like `bg-md-surface-container-low`,
+   `text-md-on-surface`, `border-md-outline-variant`, `shadow-md-1`,
+   `ease-md-standard` and `rounded-2xl` all resolve to M3 values.
+   ============================================================ */
 @theme inline {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-surface-3: var(--surface-3);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-muted-2: var(--muted-2);
-  --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
-  --color-accent: var(--accent);
-  --color-accent-brand: var(--accent-brand);
-  --color-on-accent: var(--on-accent);
-  --color-accent-soft: var(--accent-soft);
-  --color-accent-soft-strong: var(--accent-soft-strong);
-  --font-sans: var(--font-roboto);
-  --font-mono: var(--font-roboto-mono);
+  /* ----- M3 semantic color roles (canonical, Tailwind-facing) ----- */
+  --color-md-primary: hsl(var(--md-sys-color-primary));
+  --color-md-on-primary: hsl(var(--md-sys-color-on-primary));
+  --color-md-primary-container: hsl(var(--md-sys-color-primary-container));
+  --color-md-on-primary-container: hsl(var(--md-sys-color-on-primary-container));
+  --color-md-secondary: hsl(var(--md-sys-color-secondary));
+  --color-md-on-secondary: hsl(var(--md-sys-color-on-secondary));
+  --color-md-secondary-container: hsl(var(--md-sys-color-secondary-container));
+  --color-md-on-secondary-container: hsl(var(--md-sys-color-on-secondary-container));
+  --color-md-tertiary: hsl(var(--md-sys-color-tertiary));
+  --color-md-on-tertiary: hsl(var(--md-sys-color-on-tertiary));
+  --color-md-error: hsl(var(--md-sys-color-error));
+  --color-md-on-error: hsl(var(--md-sys-color-on-error));
+  --color-md-background: hsl(var(--md-sys-color-background));
+  --color-md-on-background: hsl(var(--md-sys-color-on-background));
+  --color-md-surface: hsl(var(--md-sys-color-surface));
+  --color-md-on-surface: hsl(var(--md-sys-color-on-surface));
+  --color-md-surface-variant: hsl(var(--md-sys-color-surface-variant));
+  --color-md-on-surface-variant: hsl(var(--md-sys-color-on-surface-variant));
+  --color-md-surface-container-lowest: hsl(var(--md-sys-color-surface-container-lowest));
+  --color-md-surface-container-low: hsl(var(--md-sys-color-surface-container-low));
+  --color-md-surface-container: hsl(var(--md-sys-color-surface-container));
+  --color-md-surface-container-high: hsl(var(--md-sys-color-surface-container-high));
+  --color-md-surface-container-highest: hsl(var(--md-sys-color-surface-container-highest));
+  --color-md-outline: hsl(var(--md-sys-color-outline));
+  --color-md-outline-variant: hsl(var(--md-sys-color-outline-variant));
+  --color-md-inverse-surface: hsl(var(--md-sys-color-inverse-surface));
+  --color-md-inverse-on-surface: hsl(var(--md-sys-color-inverse-on-surface));
+  --color-md-inverse-primary: hsl(var(--md-sys-color-inverse-primary));
+
+  /* ----- App-facing aliases (kept so existing bg-background / text-muted /
+     border-border / bg-accent utilities used across app/ keep compiling) ----- */
+  --color-background: hsl(var(--md-sys-color-background));
+  --color-surface: hsl(var(--md-sys-color-surface));
+  --color-surface-2: hsl(var(--md-sys-color-surface-container));
+  --color-surface-3: hsl(var(--md-sys-color-surface-container-high));
+  --color-foreground: hsl(var(--md-sys-color-on-surface));
+  --color-muted: hsl(var(--md-sys-color-on-surface-variant));
+  --color-muted-2: hsl(var(--md-sys-color-on-surface-variant));
+  --color-border: hsl(var(--md-sys-color-outline-variant));
+  --color-border-strong: hsl(var(--md-sys-color-outline));
+  --color-accent: hsl(var(--md-sys-color-primary));
+  --color-accent-brand: hsl(var(--md-sys-color-primary));
+  --color-on-accent: hsl(var(--md-sys-color-on-primary));
+  --color-accent-soft: hsl(var(--md-sys-color-primary-container));
+  --color-accent-soft-strong: hsl(var(--md-sys-color-primary-container));
+
+  /* ----- M3 shape scale -> Tailwind's radius-* namespace (verbatim blog mapping) ----- */
+  --radius-xs: var(--md-sys-shape-corner-extra-small); /* 4px */
+  --radius-sm: var(--md-sys-shape-corner-small); /* 8px — button */
+  --radius-md: var(--md-sys-shape-corner-medium); /* 12px — card default */
+  --radius-lg: var(--md-sys-shape-corner-medium); /* alias */
+  --radius-xl: var(--md-sys-shape-corner-large); /* 16px */
+  --radius-2xl: var(--md-sys-shape-corner-extra-large); /* 28px — dialog / hero card */
+  --radius-3xl: var(--md-sys-shape-corner-extra-large);
+
+  /* ----- M3 elevation -> Tailwind's shadow-* namespace ----- */
+  --shadow-md-1: var(--md-sys-elevation-level1);
+  --shadow-md-2: var(--md-sys-elevation-level2);
+  --shadow-md-3: var(--md-sys-elevation-level3);
+  --shadow-md-4: var(--md-sys-elevation-level4);
+  --shadow-md-5: var(--md-sys-elevation-level5);
+
+  /* ----- M3 motion easing -> Tailwind's ease-* namespace ----- */
+  --ease-md-emphasized: var(--md-sys-motion-easing-emphasized);
+  --ease-md-emphasized-decelerate: var(--md-sys-motion-easing-emphasized-decelerate);
+  --ease-md-emphasized-accelerate: var(--md-sys-motion-easing-emphasized-accelerate);
+  --ease-md-standard: var(--md-sys-motion-easing-standard);
+
+  /* ----- Fonts (see app/layout.tsx: DM Sans + JetBrains Mono via next/font) ----- */
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 html {
@@ -111,24 +237,303 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  transition: background-color var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard);
+  background: hsl(var(--md-sys-color-background));
+  color: hsl(var(--md-sys-color-on-surface));
+  font-family: var(--font-sans), "Google Sans", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.5px;
+  font-feature-settings: "cv11", "ss01";
+  transition:
+    background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+    color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
-/* Default surface card: flat elevation-1, tint over shadow. */
+/* Selection — M3 primary at 22% opacity */
+::selection {
+  background: hsl(var(--md-sys-color-primary) / 0.22);
+  color: hsl(var(--md-sys-color-on-surface));
+}
+
+/* ================================
+   TYPOGRAPHY — Material 3 type scale
+   All bound to a 4dp grid for line-height. Card/section titles and
+   meta labels should reach for these classes; big hero/display text
+   uses Tailwind text-* sizes + font-normal/font-medium + tracking-tight
+   directly (see app/page.tsx), matching the reference recipe.
+   ================================ */
+.md-display-large   { font-size: 57px; line-height: 64px; letter-spacing: -0.25px; font-weight: 400; }
+.md-display-medium  { font-size: 45px; line-height: 52px; letter-spacing: 0;       font-weight: 400; }
+.md-display-small   { font-size: 36px; line-height: 44px; letter-spacing: 0;       font-weight: 400; }
+.md-headline-large  { font-size: 32px; line-height: 40px; letter-spacing: 0;       font-weight: 400; }
+.md-headline-medium { font-size: 28px; line-height: 36px; letter-spacing: 0;       font-weight: 400; }
+.md-headline-small  { font-size: 24px; line-height: 32px; letter-spacing: 0;       font-weight: 400; }
+.md-title-large     { font-size: 22px; line-height: 28px; letter-spacing: 0;       font-weight: 500; }
+.md-title-medium    { font-size: 16px; line-height: 24px; letter-spacing: 0.15px;  font-weight: 500; }
+.md-title-small     { font-size: 14px; line-height: 20px; letter-spacing: 0.1px;   font-weight: 500; }
+.md-body-large      { font-size: 16px; line-height: 24px; letter-spacing: 0.5px;   font-weight: 400; }
+.md-body-medium     { font-size: 14px; line-height: 20px; letter-spacing: 0.25px;  font-weight: 400; }
+.md-body-small      { font-size: 12px; line-height: 16px; letter-spacing: 0.4px;   font-weight: 400; }
+.md-label-large     { font-size: 14px; line-height: 20px; letter-spacing: 0.1px;   font-weight: 500; }
+.md-label-medium    { font-size: 12px; line-height: 16px; letter-spacing: 0.5px;   font-weight: 500; }
+.md-label-small     { font-size: 11px; line-height: 16px; letter-spacing: 0.5px;   font-weight: 500; }
+
+/* Base heading defaults map to the M3 headline scale (safety net —
+   most headings in this app carry explicit Tailwind size classes). */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans), "Google Sans", system-ui, sans-serif;
+  color: hsl(var(--md-sys-color-on-surface));
+  font-weight: 400;
+}
+h1 { font-size: 32px; line-height: 40px; letter-spacing: 0;      font-weight: 500; }
+h2 { font-size: 28px; line-height: 36px; letter-spacing: 0;      font-weight: 500; }
+h3 { font-size: 24px; line-height: 32px; letter-spacing: 0;      font-weight: 500; }
+h4 { font-size: 22px; line-height: 28px; letter-spacing: 0;      font-weight: 500; }
+h5 { font-size: 16px; line-height: 24px; letter-spacing: 0.15px; font-weight: 500; }
+h6 { font-size: 14px; line-height: 20px; letter-spacing: 0.1px;  font-weight: 500; }
+
+/* ================================
+   MATERIAL SYMBOLS — icon helper class
+   The font itself is loaded from app/layout.tsx <head>.
+   ================================ */
+.material-symbols-rounded {
+  font-family: "Material Symbols Rounded" !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: "liga";
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+.material-symbols-rounded.filled { font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24; }
+
+/* ================================
+   M3 ELEVATION UTILITIES
+   ================================ */
+.md-elevation-0 { box-shadow: var(--md-sys-elevation-level0); }
+.md-elevation-1 { box-shadow: var(--md-sys-elevation-level1); }
+.md-elevation-2 { box-shadow: var(--md-sys-elevation-level2); }
+.md-elevation-3 { box-shadow: var(--md-sys-elevation-level3); }
+.md-elevation-4 { box-shadow: var(--md-sys-elevation-level4); }
+.md-elevation-5 { box-shadow: var(--md-sys-elevation-level5); }
+
+/* ================================
+   M3 BUTTON — filled / tonal / outlined / text
+   Height 40px, label-large text, 8px radius (or full pill).
+   State layer overlay via ::before pseudo (M3 spec) — replaces
+   hover:brightness / active:scale interaction hacks entirely.
+   ================================ */
+.md-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 24px;
+  border-radius: var(--md-sys-shape-corner-small);
+  font-family: var(--font-sans), "Google Sans", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.1px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+    box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+    color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  text-decoration: none;
+  white-space: nowrap;
+  isolation: isolate;
+}
+.md-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  z-index: -1;
+  pointer-events: none;
+}
+.md-btn:hover::before  { opacity: 0.08; }
+.md-btn:focus-visible::before { opacity: 0.12; }
+.md-btn:active::before { opacity: 0.12; }
+.md-btn:disabled { opacity: 0.38; cursor: not-allowed; pointer-events: none; }
+.md-btn .material-symbols-rounded { font-size: 18px; }
+
+.md-btn-filled {
+  background: hsl(var(--md-sys-color-primary));
+  color: hsl(var(--md-sys-color-on-primary));
+}
+.md-btn-filled:hover { box-shadow: var(--md-sys-elevation-level1); }
+
+.md-btn-tonal {
+  background: hsl(var(--md-sys-color-secondary-container));
+  color: hsl(var(--md-sys-color-on-secondary-container));
+}
+.md-btn-tonal:hover { box-shadow: var(--md-sys-elevation-level1); }
+
+.md-btn-outlined {
+  background: transparent;
+  color: hsl(var(--md-sys-color-primary));
+  border: 1px solid hsl(var(--md-sys-color-outline));
+  padding: 0 23px;
+}
+.md-btn-outlined:hover { border-color: hsl(var(--md-sys-color-primary)); }
+
+.md-btn-text {
+  background: transparent;
+  color: hsl(var(--md-sys-color-primary));
+  padding: 0 12px;
+}
+
+.md-btn-sm { height: 32px; padding: 0 16px; }
+.md-btn-lg { height: 56px; padding: 0 32px; font-size: 16px; }
+.md-btn-pill { border-radius: var(--md-sys-shape-corner-full); }
+
+/* ================================
+   M3 CARD — surface, 12px radius, 24px padding,
+   elevation 1 default, 2 on hover (elevated variant).
+   ================================ */
+.md-card {
+  background: hsl(var(--md-sys-color-surface-container-low));
+  color: hsl(var(--md-sys-color-on-surface));
+  border-radius: var(--md-sys-shape-corner-medium);
+  padding: 24px;
+  transition:
+    box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+    background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+.md-card-elevated { box-shadow: var(--md-sys-elevation-level1); }
+.md-card-elevated:hover { box-shadow: var(--md-sys-elevation-level2); }
+.md-card-outlined { border: 1px solid hsl(var(--md-sys-color-outline-variant)); background: hsl(var(--md-sys-color-surface)); }
+.md-card-filled { background: hsl(var(--md-sys-color-surface-container-high)); }
+
+/* Legacy `.card` alias — surface-container-low + outline-variant border,
+   the exact recipe used across this app's cards/panels. */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-xs);
-  transition: box-shadow var(--dur-2) var(--ease-standard), border-color var(--dur-2) var(--ease-standard);
+  background: hsl(var(--md-sys-color-surface-container-low));
+  border: 1px solid hsl(var(--md-sys-color-outline-variant));
+  box-shadow: var(--md-sys-elevation-level1);
+  transition:
+    box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+    border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
 
-/* Subtle dotted texture — used sparingly instead of the old violet glow. */
-.dot-grid {
-  background-image: radial-gradient(var(--border) 1px, transparent 1px);
-  background-size: 22px 22px;
+/* ================================
+   M3 FIELD — outlined inputs/selects/textareas.
+   56px height, 4px radius, focus ring in primary.
+   ================================ */
+.md-field {
+  width: 100%;
+  background: transparent;
+  color: hsl(var(--md-sys-color-on-surface));
+  border: 1px solid hsl(var(--md-sys-color-outline));
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  padding: 0 16px;
+  height: 56px;
+  font-family: var(--font-sans), "Google Sans", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.5px;
+  transition: border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  outline: none;
 }
+.md-field:hover { border-color: hsl(var(--md-sys-color-on-surface)); }
+.md-field:focus {
+  border-color: hsl(var(--md-sys-color-primary));
+  border-width: 2px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.md-field::placeholder { color: hsl(var(--md-sys-color-on-surface-variant)); }
+textarea.md-field { height: auto; padding: 16px; resize: vertical; min-height: 96px; }
+select.md-field {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, hsl(var(--md-sys-color-on-surface-variant)) 50%), linear-gradient(135deg, hsl(var(--md-sys-color-on-surface-variant)) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 40px;
+}
+
+.md-field-label {
+  display: block;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  color: hsl(var(--md-sys-color-on-surface-variant));
+  margin-bottom: 6px;
+}
+
+/* Dense variant for inline filters and chip-adjacent inputs */
+.md-field-dense {
+  width: auto;
+  background: transparent;
+  color: hsl(var(--md-sys-color-on-surface));
+  border: 1px solid hsl(var(--md-sys-color-outline-variant));
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  padding: 0 12px;
+  height: 40px;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  outline: none;
+  transition: border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+.md-field-dense:hover { border-color: hsl(var(--md-sys-color-on-surface)); }
+.md-field-dense:focus { border-color: hsl(var(--md-sys-color-primary)); }
+textarea.md-field-dense { height: auto; padding: 8px 12px; resize: vertical; min-height: 84px; }
+
+/* ================================
+   UTILITIES — motion, loading, texture
+   ================================ */
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-transition {
+  animation: slideUp var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized-decelerate);
+}
+
+/* fade-up — hero/section entrance, now powered by the M3 slideUp
+   keyframe + emphasized-decelerate easing instead of a bespoke curve. */
+.fade-up { animation: slideUp var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate) both; }
+.fade-up-1 { animation-delay: 60ms; }
+.fade-up-2 { animation-delay: 120ms; }
+.fade-up-3 { animation-delay: 180ms; }
+
+/* stagger-list — per-item staggered reveal for longer feeds/lists */
+.stagger-list > * { opacity: 0; animation: slideUp var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate) forwards; }
+.stagger-list > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-list > *:nth-child(2) { animation-delay: 40ms; }
+.stagger-list > *:nth-child(3) { animation-delay: 80ms; }
+.stagger-list > *:nth-child(4) { animation-delay: 120ms; }
+.stagger-list > *:nth-child(5) { animation-delay: 160ms; }
+.stagger-list > *:nth-child(6) { animation-delay: 200ms; }
+.stagger-list > *:nth-child(7) { animation-delay: 240ms; }
+.stagger-list > *:nth-child(8) { animation-delay: 280ms; }
+.stagger-list > *:nth-child(9) { animation-delay: 320ms; }
+.stagger-list > *:nth-child(n+10) { animation-delay: 360ms; }
 
 @keyframes pulse-dot {
   0%, 80%, 100% { opacity: 0.3; }
@@ -138,24 +543,24 @@ body {
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.fade-up { animation: fade-up var(--dur-3) var(--ease-emphasized-decel) both; }
-.fade-up-1 { animation-delay: 0.05s; }
-.fade-up-2 { animation-delay: 0.12s; }
-.fade-up-3 { animation-delay: 0.2s; }
-
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 .shimmer {
-  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+  background: linear-gradient(90deg, hsl(var(--md-sys-color-surface-container)) 25%, hsl(var(--md-sys-color-surface-container-high)) 50%, hsl(var(--md-sys-color-surface-container)) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
 }
+
+/* Scrollbar — restrained M3-style */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--md-sys-color-outline) / 0.5);
+  border-radius: var(--md-sys-shape-corner-full);
+}
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--md-sys-color-outline)); }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }

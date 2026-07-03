@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Persona } from "@/lib/api";
+import { Icon } from "./Icon";
 
 // Coming-soon personas — shown as the vision, not yet selectable.
 const SOON = [
@@ -38,12 +39,13 @@ export function PersonaSwitcher({
           <button
             key={p.key}
             onClick={() => pick(p.key)}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ease-[var(--ease-standard)] cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 md-label-large transition-all duration-200 ease-md-standard cursor-pointer ${
               on
-                ? "bg-accent text-on-accent shadow-[var(--shadow-xs)]"
-                : "bg-surface text-muted ring-1 ring-border hover:bg-surface-2 hover:text-foreground hover:ring-border-strong"
+                ? "bg-md-primary text-md-on-primary shadow-md-1"
+                : "bg-md-surface text-md-on-surface-variant ring-1 ring-md-outline-variant hover:bg-md-surface-container hover:text-md-on-surface hover:ring-md-outline"
             }`}
           >
+            {on && <Icon name="check" size={16} />}
             {p.name}
           </button>
         );
@@ -51,11 +53,11 @@ export function PersonaSwitcher({
       {soon.map((s) => (
         <span
           key={s.key}
-          className="cursor-not-allowed rounded-full bg-surface px-4 py-2 text-sm font-medium text-muted-2 ring-1 ring-dashed ring-border"
+          className="cursor-not-allowed rounded-full bg-md-surface px-4 py-2 md-label-large text-md-on-surface-variant/70 ring-1 ring-dashed ring-md-outline-variant"
           title="Coming soon"
         >
           {s.name}
-          <span className="ml-1.5 text-[10px] uppercase tracking-wide text-muted-2">
+          <span className="ml-1.5 md-label-small uppercase text-md-on-surface-variant/70">
             soon
           </span>
         </span>

@@ -5,7 +5,7 @@ export function SourceIcon({ url, size = 16 }: { url: string; size?: number }) {
   const host = hostOf(url);
   return (
     <span
-      className="inline-flex shrink-0 items-center justify-center overflow-hidden rounded bg-surface-2 text-[9px] font-semibold uppercase text-muted-2"
+      className="inline-flex shrink-0 items-center justify-center overflow-hidden rounded bg-md-surface-container text-[9px] font-medium uppercase text-md-on-surface-variant"
       style={{ width: size, height: size }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}

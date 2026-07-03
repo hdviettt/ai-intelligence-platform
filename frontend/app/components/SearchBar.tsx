@@ -2,7 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "./Icon";
 
+// Google-style pill search bar: rounded-full, outlined at rest, primary
+// 2px ring on focus, elevation only appears once engaged. No gradients.
 export function SearchBar({
   initial = "",
   autoFocus = false,
@@ -33,21 +36,17 @@ export function SearchBar({
   return (
     <form
       onSubmit={submit}
-      className="relative w-full rounded-full bg-surface transition-shadow duration-200 ease-[var(--ease-standard)]"
-      style={{ boxShadow: focused ? "var(--shadow-lg)" : "var(--shadow-sm)" }}
+      className={`group relative flex w-full items-center rounded-full border bg-md-surface transition-all duration-200 ease-md-standard ${
+        focused
+          ? "border-2 border-md-primary shadow-md-2"
+          : "border border-md-outline hover:shadow-md-1"
+      }`}
     >
-      <svg
-        viewBox="0 0 24 24"
-        className={`pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-muted-2 ${
-          big ? "h-5 w-5" : "h-4.5 w-4.5"
-        }`}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <circle cx="11" cy="11" r="7" />
-        <path d="m21 21-4.3-4.3" strokeLinecap="round" />
-      </svg>
+      <Icon
+        name="search"
+        size={big ? 20 : 18}
+        className={`pointer-events-none shrink-0 text-md-on-surface-variant ${big ? "ml-5" : "ml-4"}`}
+      />
       <input
         ref={ref}
         type="text"
@@ -57,16 +56,13 @@ export function SearchBar({
         onBlur={() => setFocused(false)}
         placeholder="Ask anything about AI…"
         aria-label="Search the AI beat"
-        className={`w-full rounded-full bg-transparent pr-28 text-foreground outline-none placeholder:text-muted-2 ${
-          big ? "py-4 text-base" : "py-3 text-[15px]"
+        className={`w-full flex-1 bg-transparent text-md-on-surface outline-none placeholder:text-md-on-surface-variant ${
+          big ? "py-4 pl-4 pr-2 text-base" : "py-3 pl-3 pr-2 text-[15px]"
         }`}
-        style={{ paddingLeft: big ? "3.25rem" : "3rem" }}
       />
       <button
         type="submit"
-        className={`absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full bg-accent font-medium text-on-accent transition-transform duration-100 ease-[var(--ease-standard)] hover:shadow-[var(--shadow-sm)] active:scale-95 cursor-pointer ${
-          big ? "px-5 py-2.5 text-sm" : "px-4 py-2 text-sm"
-        }`}
+        className={`md-btn md-btn-filled md-btn-pill mr-1.5 shrink-0 ${big ? "" : "md-btn-sm"}`}
       >
         Search
       </button>

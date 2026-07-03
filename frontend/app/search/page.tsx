@@ -6,6 +6,7 @@ import { SearchBar } from "../components/SearchBar";
 import { TrendingRail } from "../components/TrendingRail";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { Wordmark } from "../components/Wordmark";
+import { Icon } from "../components/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ async function Results({ q }: { q: string }) {
     data = await search(q, 12);
   } catch {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-400/25 dark:bg-red-400/10 dark:text-red-300">
+      <div className="rounded-xl border border-red-200 bg-red-50 p-5 md-body-medium text-red-700 dark:border-red-400/25 dark:bg-red-400/10 dark:text-red-300">
         Something went wrong reaching the search service. Try again.
       </div>
     );
@@ -23,8 +24,8 @@ async function Results({ q }: { q: string }) {
 
   if (!data.results.length) {
     return (
-      <div className="rounded-2xl card p-8 text-center">
-        <p className="text-sm text-muted">
+      <div className="rounded-2xl border border-md-outline-variant bg-md-surface-container-low p-8 text-center">
+        <p className="md-body-medium text-md-on-surface-variant">
           No indexed sources cover &ldquo;{q}&rdquo; yet. The corpus is still
           growing — try a broader query.
         </p>
@@ -36,10 +37,8 @@ async function Results({ q }: { q: string }) {
     <div className="space-y-8">
       {data.answer && <AnswerBlock data={data} />}
       <div>
-        <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
-          <svg viewBox="0 0 24 24" className="h-4 w-4 text-muted-2" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 6h18M3 12h18M3 18h12" strokeLinecap="round" />
-          </svg>
+        <h2 className="mb-4 flex items-center gap-2 md-title-small text-md-on-surface">
+          <Icon name="reorder" size={18} className="text-md-on-surface-variant" />
           Sources, organized by theme
         </h2>
         <ResultGroups results={data.results} />
@@ -58,7 +57,7 @@ export default async function SearchPage({
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur-md">
+      <header className="sticky top-0 z-20 border-b border-md-outline-variant bg-md-background/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
           <div className="shrink-0">
             <Wordmark />
@@ -72,13 +71,15 @@ export default async function SearchPage({
 
       <main className="mx-auto max-w-5xl px-4 sm:px-6">
         {!query ? (
-          <p className="py-24 text-center text-muted">Type a question to begin.</p>
+          <p className="py-24 text-center md-body-large text-md-on-surface-variant">
+            Type a question to begin.
+          </p>
         ) : (
           <>
-            <div className="border-b border-border py-4">
-              <p className="text-sm text-muted-2">
+            <div className="border-b border-md-outline-variant py-4">
+              <p className="md-body-medium text-md-on-surface-variant">
                 Results for{" "}
-                <span className="font-medium text-foreground">
+                <span className="font-medium text-md-on-surface">
                   &ldquo;{query}&rdquo;
                 </span>
               </p>

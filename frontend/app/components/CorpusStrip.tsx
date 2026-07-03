@@ -21,13 +21,13 @@ export async function CorpusStrip() {
       {items.map((it, i) => (
         <div key={it.label} className="flex items-center gap-8">
           <div>
-            <div className="text-lg font-semibold tabular-nums text-foreground">
+            <div className="text-lg font-medium tabular-nums tracking-tight text-md-on-surface">
               {it.value}
             </div>
-            <div className="text-xs text-muted-2">{it.label}</div>
+            <div className="md-label-small text-md-on-surface-variant">{it.label}</div>
           </div>
           {i < items.length - 1 && (
-            <span className="hidden h-8 w-px bg-border sm:block" />
+            <span className="hidden h-8 w-px bg-md-outline-variant sm:block" />
           )}
         </div>
       ))}

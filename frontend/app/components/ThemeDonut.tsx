@@ -26,8 +26,8 @@ export function ThemeDonut({
   });
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
-      <span className="text-sm font-semibold text-foreground">Theme spread</span>
+    <div className="rounded-xl border border-md-outline-variant bg-md-surface-container-low p-5">
+      <span className="md-title-small text-md-on-surface">Theme spread</span>
       <div className="mt-3 flex items-center gap-5">
         <svg viewBox="0 0 140 140" className="h-32 w-32 shrink-0">
           <g transform="rotate(-90 70 70)">
@@ -50,10 +50,10 @@ export function ThemeDonut({
               );
             })}
           </g>
-          <text x="70" y="66" textAnchor="middle" className="fill-foreground text-lg font-semibold">
+          <text x="70" y="66" textAnchor="middle" className="fill-md-on-surface text-lg font-medium">
             {total.toLocaleString()}
           </text>
-          <text x="70" y="82" textAnchor="middle" className="fill-muted-2 text-[9px]">
+          <text x="70" y="82" textAnchor="middle" className="fill-md-on-surface-variant text-[9px]">
             articles
           </text>
         </svg>
@@ -63,11 +63,11 @@ export function ThemeDonut({
             return (
               <div key={s.t} className="flex items-center gap-2 text-sm">
                 <span className={`h-2.5 w-2.5 rounded-full ${style.dot}`} />
-                <span className="text-muted">{s.t}</span>
-                <span className="ml-auto tabular-nums text-foreground">
+                <span className="text-md-on-surface-variant">{s.t}</span>
+                <span className="ml-auto tabular-nums text-md-on-surface">
                   {s.v.toLocaleString()}
                 </span>
-                <span className="w-9 text-right tabular-nums text-xs text-muted">
+                <span className="w-9 text-right tabular-nums md-label-small text-md-on-surface-variant">
                   {Math.round(s.frac * 100)}%
                 </span>
               </div>

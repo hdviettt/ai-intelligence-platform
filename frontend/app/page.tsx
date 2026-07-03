@@ -35,13 +35,11 @@ export default async function Home({
 
   return (
     <div className="relative min-h-screen">
+      {/* Header — wordmark left, control-panel link + theme toggle right */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
         <Wordmark />
         <div className="flex items-center gap-1">
-          <a
-            href="/admin"
-            className="rounded-full px-3 py-2 text-sm text-muted-2 transition-colors duration-150 hover:bg-surface-2 hover:text-foreground"
-          >
+          <a href="/admin" className="md-btn md-btn-text">
             Control panel
           </a>
           <ThemeToggle />
@@ -49,17 +47,19 @@ export default async function Home({
       </header>
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6">
+        {/* Hero — Google-style: live-status pill, light display headline,
+            pill search bar, example chips, then the corpus scale strip. */}
         <section className="relative flex flex-col items-center pt-12 pb-10 text-center sm:pt-16">
-          <span className="fade-up mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-muted shadow-[var(--shadow-xs)]">
+          <span className="fade-up mb-5 inline-flex items-center gap-2 rounded-full border border-md-outline-variant bg-md-surface-container-low px-3.5 py-1.5 md-label-medium text-md-on-surface-variant">
             <span className="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400" />
             Live engine for the AI beat
           </span>
 
-          <h1 className="fade-up fade-up-1 text-4xl font-normal tracking-tight text-foreground sm:text-5xl">
-            What <span className="text-accent">actually matters</span> in AI,
+          <h1 className="fade-up fade-up-1 text-4xl font-normal tracking-tight text-md-on-surface sm:text-5xl">
+            What <span className="text-md-primary">actually matters</span> in AI,
             <br className="hidden sm:block" /> tailored to you
           </h1>
-          <p className="fade-up fade-up-2 mt-4 max-w-xl text-base leading-relaxed text-muted">
+          <p className="fade-up fade-up-2 mt-4 max-w-xl md-body-large text-md-on-surface-variant">
             Not a firehose. A curated read on the AI beat, scored and ranked for
             who you are — with the &ldquo;so what&rdquo; spelled out. Ask anything,
             or scan today&rsquo;s signal below.
@@ -74,29 +74,31 @@ export default async function Home({
               <a
                 key={ex}
                 href={`/search?q=${encodeURIComponent(ex)}`}
-                className="rounded-full border border-border bg-surface px-3.5 py-1.5 text-sm text-muted shadow-sm transition-all hover:-translate-y-px hover:border-accent/40 hover:text-accent cursor-pointer"
+                className="rounded-full border border-md-outline-variant bg-md-surface px-3.5 py-1.5 md-body-medium text-md-on-surface-variant transition-all duration-200 ease-md-standard hover:border-md-primary/40 hover:text-md-primary hover:shadow-md-1 cursor-pointer"
               >
                 {ex}
               </a>
             ))}
           </div>
 
-          <div className="fade-up fade-up-3 mt-8 w-full border-t border-border pt-6">
+          <div className="fade-up fade-up-3 mt-8 w-full border-t border-md-outline-variant pt-6">
             <Suspense fallback={null}>
               <CorpusStrip />
             </Suspense>
           </div>
         </section>
 
+        {/* Persona lens picker */}
         <section className="pb-6">
           <div className="mb-6 flex flex-col items-center gap-3">
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted-2">
+            <span className="md-label-medium uppercase text-md-on-surface-variant/70">
               Choose your lens
             </span>
             <PersonaSwitcher personas={personas} active={active} />
           </div>
         </section>
 
+        {/* Feed + trending rail */}
         <section className="grid gap-8 pb-24 lg:grid-cols-[1fr_340px]">
           <Suspense key={active} fallback={<FeedSkeleton />}>
             <PersonaFeed persona={active} />
@@ -118,7 +120,7 @@ function FeedSkeleton() {
   return (
     <div className="space-y-3">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="rounded-2xl card p-5">
+        <div key={i} className="rounded-2xl border border-md-outline-variant bg-md-surface-container-low p-5">
           <div className="mb-3 h-4 w-24 rounded shimmer" />
           <div className="mb-2 h-4 w-3/4 rounded shimmer" />
           <div className="h-3.5 w-full rounded shimmer" />

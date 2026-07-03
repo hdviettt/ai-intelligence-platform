@@ -4,7 +4,7 @@ import type { CoveragePoint } from "@/lib/api";
 export function CoverageChart({ points }: { points: CoveragePoint[] }) {
   if (!points.length) {
     return (
-      <div className="rounded-xl border border-border bg-surface p-5 text-sm text-muted">
+      <div className="rounded-xl border border-md-outline-variant bg-md-surface-container-low p-5 md-body-medium text-md-on-surface-variant">
         No dated articles yet.
       </div>
     );
@@ -28,12 +28,12 @@ export function CoverageChart({ points }: { points: CoveragePoint[] }) {
   const last = points[points.length - 1].period;
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <div className="rounded-xl border border-md-outline-variant bg-md-surface-container-low p-5">
       <div className="mb-1 flex items-baseline justify-between">
-        <span className="text-sm font-semibold text-foreground">
+        <span className="md-title-small text-md-on-surface">
           {total.toLocaleString()} dated articles
         </span>
-        <span className="text-xs text-muted">
+        <span className="md-label-small text-md-on-surface-variant">
           spans {n} years · {first}–{last}
         </span>
       </div>
@@ -49,7 +49,7 @@ export function CoverageChart({ points }: { points: CoveragePoint[] }) {
                 width={bw}
                 height={bh}
                 rx={Math.min(3, bw / 2)}
-                className="fill-accent"
+                className="fill-md-primary"
               >
                 <title>{`${p.period}: ${p.count.toLocaleString()}`}</title>
               </rect>
@@ -58,7 +58,7 @@ export function CoverageChart({ points }: { points: CoveragePoint[] }) {
                   x={x(i) + bw / 2}
                   y={H - 10}
                   textAnchor="middle"
-                  className="fill-muted-2 text-[9px]"
+                  className="fill-md-on-surface-variant text-[9px]"
                 >
                   {p.period.length > 4 ? p.period.slice(2) : p.period}
                 </text>
