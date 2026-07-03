@@ -14,7 +14,7 @@ from app.config import get_settings
 from app.db import get_connection
 from app.discovery import theme_for
 
-DEFAULT_DAYS = {"daily": 3, "weekly": 8}
+DEFAULT_DAYS = {"daily": 4, "weekly": 10}
 DEFAULT_LIMIT = 18
 
 SYSTEM = (
@@ -23,11 +23,16 @@ SYSTEM = (
     "the numbered sources provided, write ONE flowing briefing — a single connected "
     "narrative, not a list — that tells the story of what's new and, crucially, what "
     "it MEANS: the through-line, the implications, and what to watch next. Open with "
-    "the single biggest thread. Be concrete and specific; name the players. Cite every "
-    "claim with bracketed numbers like [1], [2]. Where sources disagree or a claim is "
-    "thin, say so instead of smoothing it over. Never invent anything not in the "
-    "sources. Aim for 350-450 words across 3-5 short paragraphs. No headings, no bullet "
-    "lists, no preamble like 'Here is the briefing' — just the narrative itself."
+    "the single biggest thread. Prioritize substantive developments — model and "
+    "product releases, research that changes something, notable industry or policy "
+    "moves — over minor items, personal projects, or incremental preprints; simply "
+    "leave the trivia out. If the window is genuinely thin on major news, say so "
+    "plainly rather than inflating small items. Be concrete and specific; name the "
+    "players. Cite every claim with bracketed numbers like [1], [2]. Where sources "
+    "disagree or a claim is thin, say so instead of smoothing it over. Never invent "
+    "anything not in the sources. Aim for 350-450 words across 3-5 short paragraphs. "
+    "No headings, no bullet lists, no preamble like 'Here is the briefing' — just the "
+    "narrative itself."
 )
 
 
@@ -64,10 +69,13 @@ def ensure_schema() -> None:
 
 
 def _select_articles(days: int, limit: int) -> list[tuple]:
-    """Recent articles, best-signal first where scored, else newest first.
+    """Recent articles, best-signal first where scored, else quality-weighted recency.
 
-    A LEFT JOIN on the max persona signal gives a light importance boost, but never
-    requires an article to be scored — so this works even at 0% scoring coverage.
+    With scoring off (signal all 0), pure recency just grabs whatever was ingested
+    last — usually raw arXiv preprints and low-effort discussion. So the fallback
+    demotes papers and promotes releases/news, then breaks ties by engagement
+    (HN points) and recency. A LEFT JOIN on max persona signal still leads when the
+    corpus is scored, so this only gets better as scoring comes online.
     """
     with get_connection() as conn:
         return conn.execute(
@@ -82,7 +90,16 @@ def _select_articles(days: int, limit: int) -> list[tuple]:
                 FROM article_persona_scores GROUP BY article_id
             ) ms ON ms.article_id = a.id
             WHERE COALESCE(a.published_at, a.fetched_at) > now() - (%s || ' days')::interval
-            ORDER BY signal DESC, substance DESC, at DESC
+            ORDER BY
+                ms.max_signal DESC NULLS LAST,
+                CASE a.source_type
+                    WHEN 'release' THEN 2
+                    WHEN 'news' THEN 2
+                    WHEN 'discussion' THEN 1
+                    ELSE 0                       -- papers (arXiv) sink to the tail
+                END DESC,
+                COALESCE(a.external_score, 0) DESC,
+                COALESCE(a.published_at, a.fetched_at) DESC
             LIMIT %s
             """,
             (days, limit),
