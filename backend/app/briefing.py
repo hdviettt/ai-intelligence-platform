@@ -28,38 +28,47 @@ DEFAULT_LIMIT = 18
 _MIGRATIONS = ("008_briefings.sql", "009_briefing_structure.sql", "010_briefing_persona.sql")
 
 SYSTEM_TASK = (
-    "You are the analyst behind a personal AI-intelligence briefing. From the numbered "
-    "sources, produce a STRUCTURED briefing that organises the day into a few clear "
+    "You are the sharp analyst behind a daily AI-intelligence briefing. The numbered "
+    "sources include real article BODY text, not just headlines — read it and extract "
+    "the actual substance (specific numbers, players, claims), don't just rephrase "
+    "titles. Produce a STRUCTURED briefing that organises the day into a few clear "
     "themes (like Google's Web Guide) — NOT a wall of prose."
 )
 
 SYSTEM_JSON = (
     "Return ONLY valid JSON of this exact shape:\n"
     '{\n'
-    '  "lede": "<one sentence naming the single biggest concrete story or tension for '
-    'this reader right now>",\n'
+    '  "lede": "<one or two sentences naming the single biggest concrete story or '
+    'through-line for this reader right now, with the stakes>",\n'
     '  "threads": [\n'
     '    {\n'
     '      "title": "<3-6 word theme heading>",\n'
-    '      "summary": "<1-2 sentences: what this theme is and, crucially, why it '
-    'matters TO THIS READER — the so-what>",\n'
+    '      "summary": "<2-3 sentences: the substance, the so-what for this reader, and '
+    'what to watch>",\n'
     '      "sources": [<source numbers belonging to this theme>]\n'
     '    }\n'
     '  ]\n'
     '}\n\n'
     "Rules:\n"
-    "- The lede must name the single biggest CONCRETE story or tension (who did what, "
-    "and the stakes for this reader) — never generic filler like 'AI is evolving "
-    "rapidly' or 'significant developments'.\n"
-    "- 3 to 5 threads, ordered by importance to this reader.\n"
+    "- The lede names the single biggest CONCRETE story or through-line — ideally "
+    "connecting related items into one thread (who did what, and the stakes for this "
+    "reader). Never generic filler like 'AI is evolving rapidly' or 'significant "
+    "developments'.\n"
+    "- 3 to 5 threads, ordered by importance to this reader. The FIRST thread must "
+    "expand on the lede's main story so the two align. Group related stories into one "
+    "thread rather than listing them separately.\n"
+    "- Each thread summary must (a) state the real substance pulled from the body — "
+    "name players, numbers, specifics; (b) spell out the concrete 'so what' for this "
+    "reader — what they should decide, watch, or do; (c) separate genuine signal from "
+    "hype, and surface disagreement between sources where it exists.\n"
     "- Prioritise substantive developments (model/product releases, research that "
     "changes something, notable industry or policy moves) over trivia, personal "
     "projects, or incremental preprints — simply leave the trivia out.\n"
-    "- Every thread must cite at least one real source number from the list; never "
-    "invent a number. A source may appear in at most one thread; not every source "
-    "must be used.\n"
-    "- Be concrete and specific; name the players. No markdown and no citation "
-    "brackets inside the text — the sources array carries the links.\n"
+    "- Every thread must cite at least one real source number; never invent a number. "
+    "A source may appear in at most one thread; not every source must be used.\n"
+    "- Be concrete and specific. No markdown, and NO inline source references of any "
+    "kind inside the text — not '[1]', not '(source 14)', not 'per source 8'. The "
+    "sources array carries the links.\n"
     "- If the window is genuinely thin on news that matters to this reader, say so "
     "honestly in the lede and use fewer threads."
 )
@@ -147,7 +156,7 @@ def _select_articles(days: int, limit: int) -> list[tuple]:
     with get_connection() as conn:
         return conn.execute(
             """
-            SELECT a.id, a.title, a.summary, a.url, a.source, a.source_type,
+            SELECT a.id, a.title, a.summary, a.body, a.url, a.source, a.source_type,
                    COALESCE(a.published_at, a.fetched_at) AS at,
                    COALESCE(a.substance, 0) AS substance,
                    COALESCE(ms.max_signal, 0) AS signal
@@ -173,21 +182,28 @@ def _select_articles(days: int, limit: int) -> list[tuple]:
         ).fetchall()
 
 
+_BODY_CHARS = 1600  # per-source body budget fed to the model (≈9k tokens over 18 sources)
+
+
 def _build_context(rows: list[tuple]) -> tuple[str, list[Citation], object, object]:
+    """Build the model context (rich: title + summary + body) and the citations that
+    back the source cards (snippet stays short — the summary, not the whole body)."""
     blocks: list[str] = []
     cites: list[Citation] = []
     ats: list = []
-    for i, (aid, title, summary, url, source, stype, at, _sub, _sig) in enumerate(rows, 1):
-        snippet = (summary or "").strip()
+    for i, (aid, title, summary, body, url, source, stype, at, _sub, _sig) in enumerate(rows, 1):
+        summary = (summary or "").strip()
         cites.append(
             Citation(
                 n=i, article_id=aid, title=title, url=url, source=source,
-                snippet=snippet[:220] or None,
+                snippet=summary[:220] or None,
                 published_at=str(at) if at else None,
             )
         )
         ats.append(at)
-        blocks.append(f"[{i}] {title} — {source} ({theme_for(stype)})\n{snippet[:320]}")
+        # Feed the model real content — summary plus body — so it can extract substance.
+        material = (summary + ("\n" + body.strip() if body else ""))[:_BODY_CHARS]
+        blocks.append(f"[{i}] {title} — {source} ({theme_for(stype)})\n{material}")
     window_start = min(ats) if ats else None
     window_end = max(ats) if ats else None
     return "\n\n".join(blocks), cites, window_start, window_end
@@ -198,15 +214,21 @@ def _ask_groq(system: str, context: str, span: str) -> str:
 
     cfg = get_settings()
     client = Groq(api_key=cfg.groq_api_key)
-    resp = client.chat.completions.create(
-        model=cfg.groq_model,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": f"Time span: {span}\n\nSources:\n{context}\n\nReturn the JSON briefing."},
-        ],
-        temperature=0.4,
-        response_format={"type": "json_object"},
-    )
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": f"Time span: {span}\n\nSources:\n{context}\n\nReturn the JSON briefing."},
+    ]
+    # Strongest Groq model for the once-a-day brief; fall back to plain completion if
+    # the model rejects the json_object response format.
+    try:
+        resp = client.chat.completions.create(
+            model=cfg.briefing_model, messages=messages, temperature=0.4,
+            response_format={"type": "json_object"},
+        )
+    except Exception:  # noqa: BLE001
+        resp = client.chat.completions.create(
+            model=cfg.briefing_model, messages=messages, temperature=0.4,
+        )
     return resp.choices[0].message.content
 
 
@@ -241,14 +263,28 @@ def _parse_json(raw: str) -> dict:
         return {}
 
 
+_REF_RE = re.compile(
+    r"\s*[\(\[]\s*(?:per\s+|see\s+|from\s+)?sources?\b[^)\]]*[\)\]]"  # (source 14), [sources 6, 8]
+    r"|\s*\bper\s+sources?\s+[\d,\s and]+"                             # per source 8
+    r"|\s*\[\d+(?:\s*,\s*\d+)*\]",                                    # [1], [1, 2]
+    re.IGNORECASE,
+)
+
+
+def _strip_refs(text: str) -> str:
+    """Remove any inline source references the model slipped in — the source cards
+    carry the links, so they shouldn't appear in the prose."""
+    return re.sub(r"\s{2,}", " ", _REF_RE.sub("", text or "")).strip()
+
+
 def _validate_threads(items, valid_ns: set[int]) -> list[Thread]:
     out: list[Thread] = []
     used: set[int] = set()
     for t in items or []:
         if not isinstance(t, dict):
             continue
-        title = str(t.get("title", "")).strip()
-        summary = str(t.get("summary", "")).strip()
+        title = _strip_refs(str(t.get("title", "")))
+        summary = _strip_refs(str(t.get("summary", "")))
         srcs: list[int] = []
         for x in t.get("sources") or []:
             try:
@@ -282,7 +318,7 @@ def generate(kind: str = "daily", persona: str = "ceo",
     system = _system(p)
     raw = _ask_anthropic(system, context, span) if provider == "anthropic" else _ask_groq(system, context, span)
     data = _parse_json(raw)
-    lede = str(data.get("lede", "")).strip()
+    lede = _strip_refs(str(data.get("lede", "")))
     threads = _validate_threads(data.get("threads"), {c.n for c in cites})
     narrative = _fallback_narrative(lede, threads)
     return Briefing(kind, persona, lede, threads, cites, ws, we, len(cites), provider, narrative=narrative)

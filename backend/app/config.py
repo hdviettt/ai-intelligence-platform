@@ -18,10 +18,16 @@ class Settings(BaseSettings):
 
     # Synthesis — Groq is the cheap streaming default; Anthropic optional upgrade.
     groq_api_key: str = ""
-    groq_model: str = "llama-3.3-70b-versatile"
+    groq_model: str = "llama-3.3-70b-versatile"   # search overview: fast + cheap
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-haiku-4-5-20251001"
     synthesis_provider: str = "groq"  # "groq" | "anthropic"
+
+    # Daily brief runs ONCE a day, so it uses the strongest Groq model (not the fast
+    # one) for analyst-grade synthesis — quality over speed. Evaluated against the
+    # real corpus: gpt-oss-120b connects stories and extracts substance from article
+    # bodies where llama-3.3-70b only rephrases headlines.
+    briefing_model: str = "openai/gpt-oss-120b"
 
     # Signal judge — Anthropic (Haiku) for backfill: higher rate limits + sharper
     # persona judgment. Groq remains a fallback.
