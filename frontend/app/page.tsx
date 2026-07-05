@@ -7,15 +7,10 @@ import { Wordmark } from "./components/Wordmark";
 import { PersonaSwitcher } from "./components/PersonaSwitcher";
 import { PersonaFeed } from "./components/PersonaFeed";
 import { DailyBriefing, BriefingSkeleton } from "./components/DailyBriefing";
+import { SinceYouLastLooked } from "./components/SinceYouLastLooked";
 import { ThemeToggle } from "./components/ThemeToggle";
 
 export const dynamic = "force-dynamic";
-
-const EXAMPLES = [
-  "What did OpenAI release recently?",
-  "Latest LLM agent benchmarks",
-  "Open-source model releases",
-];
 
 export default async function Home({
   searchParams,
@@ -36,82 +31,87 @@ export default async function Home({
 
   return (
     <div className="min-h-screen">
-      <header className="mx-auto flex max-w-3xl items-center justify-between px-4 py-5 sm:px-6">
-        <Wordmark />
-        <div className="flex items-center gap-1">
-          <a href="/admin" className="md-btn md-btn-text">
-            Control panel
-          </a>
-          <ThemeToggle />
+      {/* Slim, sticky header. Search is a persistent field here — always reachable,
+          never the gate. The brief is the front door. */}
+      <header className="sticky top-0 z-20 border-b border-md-outline-variant bg-md-background/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[1180px] items-center gap-4 px-4 py-3 sm:px-6">
+          <Wordmark />
+          <div className="hidden flex-1 justify-center px-4 sm:flex">
+            <div className="w-full max-w-sm">
+              <SearchBar size="md" />
+            </div>
+          </div>
+          <div className="ml-auto flex items-center gap-1 sm:ml-0">
+            <a href="/admin" className="md-btn md-btn-text">
+              Control panel
+            </a>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 sm:px-6">
-        {/* Hero — a single quiet column: headline, one line of intent, the
-            search field, and a plain-text row of example queries. */}
-        <section className="flex flex-col items-center pt-16 pb-14 text-center sm:pt-24 sm:pb-20">
-          <h1 className="fade-up text-4xl font-normal leading-tight tracking-tight text-md-on-surface sm:text-5xl">
-            What <span className="text-md-primary">actually matters</span> in AI
-          </h1>
-          <p className="fade-up fade-up-1 mt-5 max-w-lg md-body-large text-md-on-surface-variant">
-            A curated, ranked read on the AI beat — tailored to who you are, with
-            the “so what” spelled out. Ask anything, or scan today’s signal.
-          </p>
+      <main className="mx-auto max-w-[1180px] px-4 pb-24 sm:px-6">
+        {/* The returning-habit hook: what changed since you last looked. */}
+        <div className="py-5">
+          <SinceYouLastLooked />
+        </div>
 
-          <div className="fade-up fade-up-2 mt-9 w-full max-w-2xl">
-            <SearchBar autoFocus size="lg" />
+        {/* Asymmetric grid — a nav rail, the reading column, a trending rail — so
+            the full width is used and the reading measure stays ~66 chars. */}
+        <div className="grid grid-cols-1 gap-x-14 lg:grid-cols-[200px_minmax(0,660px)_240px]">
+          <aside className="hidden lg:block">
+            <div className="sticky top-24 space-y-6">
+              <nav className="flex flex-col items-start gap-2">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.09em] text-md-on-surface-variant/60">
+                  On this page
+                </span>
+                <a href="#brief" className="text-[13px] text-md-on-surface-variant transition-colors duration-200 hover:text-md-on-surface">
+                  Today&rsquo;s brief
+                </a>
+                <a href="#stream" className="text-[13px] text-md-on-surface-variant transition-colors duration-200 hover:text-md-on-surface">
+                  The full stream
+                </a>
+                <a href="#trending" className="text-[13px] text-md-on-surface-variant transition-colors duration-200 hover:text-md-on-surface lg:hidden xl:block">
+                  Trending
+                </a>
+              </nav>
+              <div className="space-y-2.5 border-t border-md-outline-variant pt-5">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.09em] text-md-on-surface-variant/60">
+                  Lens
+                </span>
+                <PersonaSwitcher personas={personas} active={active} layout="rail" />
+              </div>
+            </div>
+          </aside>
+
+          <div id="brief" className="min-w-0 scroll-mt-24">
+            <Suspense key={`brief-${active}`} fallback={<BriefingSkeleton />}>
+              <DailyBriefing persona={active} personaName={activeName} />
+            </Suspense>
+
+            <div id="stream" className="scroll-mt-24">
+              <Suspense key={`feed-${active}`} fallback={<FeedSkeleton />}>
+                <PersonaFeed persona={active} />
+              </Suspense>
+            </div>
           </div>
 
-          <div className="fade-up fade-up-2 mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 md-label-medium text-md-on-surface-variant/70">
-            <span>Try</span>
-            {EXAMPLES.map((ex) => (
-              <a
-                key={ex}
-                href={`/search?q=${encodeURIComponent(ex)}`}
-                className="text-md-on-surface-variant underline-offset-4 transition-colors duration-200 hover:text-md-primary hover:underline cursor-pointer"
-              >
-                {ex}
-              </a>
-            ))}
-          </div>
-        </section>
+          <aside id="trending" className="mt-14 scroll-mt-24 lg:mt-0">
+            <div className="sticky top-24">
+              <Suspense fallback={null}>
+                <TrendingRail variant="rail" />
+              </Suspense>
+            </div>
+          </aside>
+        </div>
 
-        {/* Corpus scale — quiet proof this is a real engine. */}
-        <section className="border-t border-md-outline-variant py-10">
+        {/* Corpus scale — quiet proof this is a real engine, moved off the critical
+            path to the foot. */}
+        <footer className="mt-20 border-t border-md-outline-variant pt-8">
           <Suspense fallback={null}>
             <CorpusStrip />
           </Suspense>
-        </section>
-
-        {/* Everything below is anchored to the chosen persona: pick a lens once,
-            then read the digest (the brief) then the full ranked stream. */}
-        <section className="border-t border-md-outline-variant py-14 sm:py-16">
-          <div className="mb-12 flex flex-col items-center gap-3">
-            <span className="md-label-medium text-md-on-surface-variant/70">
-              Choose your lens
-            </span>
-            <PersonaSwitcher personas={personas} active={active} />
-          </div>
-
-          {/* The persona-tailored digest. */}
-          <Suspense key={`brief-${active}`} fallback={<BriefingSkeleton />}>
-            <DailyBriefing persona={active} personaName={activeName} />
-          </Suspense>
-
-          {/* The full ranked stream for this persona. */}
-          <div className="mt-14 border-t border-md-outline-variant pt-14">
-            <Suspense key={`feed-${active}`} fallback={<FeedSkeleton />}>
-              <PersonaFeed persona={active} />
-            </Suspense>
-          </div>
-        </section>
-
-        {/* Trending — at the foot, quiet and condensed. */}
-        <section className="border-t border-md-outline-variant py-14 pb-24">
-          <Suspense fallback={null}>
-            <TrendingRail />
-          </Suspense>
-        </section>
+        </footer>
       </main>
     </div>
   );
@@ -119,17 +119,8 @@ export default async function Home({
 
 function FeedSkeleton() {
   return (
-    <div className="space-y-4">
-      {[0, 1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="rounded-2xl border border-md-outline-variant bg-md-surface-container-low p-6"
-        >
-          <div className="mb-3 h-4 w-24 rounded shimmer" />
-          <div className="mb-2 h-4 w-3/4 rounded shimmer" />
-          <div className="h-3.5 w-full rounded shimmer" />
-        </div>
-      ))}
+    <div className="mt-14 border-t border-md-outline-variant pt-6">
+      <div className="h-4 w-64 rounded shimmer" />
     </div>
   );
 }

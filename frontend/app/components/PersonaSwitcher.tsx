@@ -15,9 +15,11 @@ const SOON = [
 export function PersonaSwitcher({
   personas,
   active,
+  layout = "center",
 }: {
   personas: Persona[];
   active: string;
+  layout?: "center" | "rail";
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -30,6 +32,37 @@ export function PersonaSwitcher({
 
   const liveKeys = new Set(personas.map((p) => p.key));
   const soon = SOON.filter((s) => !liveKeys.has(s.key));
+
+  // Rail: a quiet left-aligned control for the brief sidebar. Live lenses as small
+  // text buttons; the coming-soon set collapses to a single muted line (no dead pills).
+  if (layout === "rail") {
+    return (
+      <div className="flex flex-col items-start gap-1.5">
+        {personas.map((p) => {
+          const on = p.key === active;
+          return (
+            <button
+              key={p.key}
+              onClick={() => pick(p.key)}
+              className={`inline-flex items-center gap-1.5 text-[13px] transition-colors duration-200 ease-md-standard cursor-pointer ${
+                on
+                  ? "font-semibold text-md-on-surface"
+                  : "text-md-on-surface-variant hover:text-md-on-surface"
+              }`}
+            >
+              {on && <span className="h-1.5 w-1.5 rounded-full bg-md-primary" aria-hidden />}
+              {p.name}
+            </button>
+          );
+        })}
+        {soon.length > 0 && (
+          <span className="mt-0.5 text-[12px] leading-relaxed text-md-on-surface-variant/55">
+            {soon.map((s) => s.name).join(", ")} — soon
+          </span>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-2">

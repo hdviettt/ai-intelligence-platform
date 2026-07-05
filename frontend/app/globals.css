@@ -242,7 +242,7 @@ body {
   font-family: var(--font-sans), "Google Sans", system-ui, -apple-system, sans-serif;
   font-size: 16px;
   line-height: 24px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0; /* editorial reading: 0.5px M3 tracking reads loose/generic on paragraphs */
   font-feature-settings: "cv11", "ss01";
   transition:
     background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
@@ -561,6 +561,15 @@ textarea.md-field-dense { height: auto; padding: 8px 12px; resize: vertical; min
   border-radius: var(--md-sys-shape-corner-full);
 }
 ::-webkit-scrollbar-thumb:hover { background: hsl(var(--md-sys-color-outline)); }
+
+/* ================================
+   NATIVE DISCLOSURE — the collapsible "full stream" expander.
+   Strip the default marker; rotate our own chevron on open. No JS.
+   ================================ */
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+.details-chevron { transition: transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard); }
+details[open] .details-chevron { transform: rotate(180deg); }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
