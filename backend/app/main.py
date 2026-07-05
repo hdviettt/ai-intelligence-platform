@@ -168,6 +168,7 @@ class BriefingThreadOut(BaseModel):
 
 class BriefingOut(BaseModel):
     kind: str
+    persona: str
     lede: str
     threads: list[BriefingThreadOut]
     citations: list[BriefingCitationOut]
@@ -180,12 +181,13 @@ class BriefingOut(BaseModel):
 
 
 @app.get("/briefing", response_model=BriefingOut | None)
-def get_briefing(kind: str = "daily") -> BriefingOut | None:
-    b = briefing.latest(kind)
+def get_briefing(kind: str = "daily", persona: str = "ceo") -> BriefingOut | None:
+    b = briefing.latest(kind, persona)
     if not b:
         return None
     return BriefingOut(
         kind=b.kind,
+        persona=b.persona_key,
         lede=b.lede,
         threads=[
             BriefingThreadOut(title=t.title, summary=t.summary, sources=t.sources)

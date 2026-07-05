@@ -32,6 +32,7 @@ export default async function Home({
   const active = personas.some((p) => p.key === persona)
     ? persona
     : personas[0]?.key ?? "ceo";
+  const activeName = personas.find((p) => p.key === active)?.name;
 
   return (
     <div className="min-h-screen">
@@ -75,12 +76,6 @@ export default async function Home({
           </div>
         </section>
 
-        {/* The daily brief — auto-generated "what's new + so what". Renders only
-            once a briefing exists, so it's safe before the first run. */}
-        <Suspense fallback={<BriefingSkeleton />}>
-          <DailyBriefing />
-        </Suspense>
-
         {/* Corpus scale — quiet proof this is a real engine. */}
         <section className="border-t border-md-outline-variant py-10">
           <Suspense fallback={null}>
@@ -88,14 +83,27 @@ export default async function Home({
           </Suspense>
         </section>
 
-        {/* Persona-tailored signal feed — the substance. */}
+        {/* Everything below is anchored to the chosen persona: pick a lens once,
+            then read the digest (the brief) then the full ranked stream. */}
         <section className="border-t border-md-outline-variant py-14 sm:py-16">
-          <div className="mb-8 flex justify-center">
+          <div className="mb-12 flex flex-col items-center gap-3">
+            <span className="md-label-medium text-md-on-surface-variant/70">
+              Choose your lens
+            </span>
             <PersonaSwitcher personas={personas} active={active} />
           </div>
-          <Suspense key={active} fallback={<FeedSkeleton />}>
-            <PersonaFeed persona={active} />
+
+          {/* The persona-tailored digest. */}
+          <Suspense key={`brief-${active}`} fallback={<BriefingSkeleton />}>
+            <DailyBriefing persona={active} personaName={activeName} />
           </Suspense>
+
+          {/* The full ranked stream for this persona. */}
+          <div className="mt-14 border-t border-md-outline-variant pt-14">
+            <Suspense key={`feed-${active}`} fallback={<FeedSkeleton />}>
+              <PersonaFeed persona={active} />
+            </Suspense>
+          </div>
         </section>
 
         {/* Trending — at the foot, quiet and condensed. */}

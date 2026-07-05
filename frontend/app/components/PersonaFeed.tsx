@@ -22,11 +22,9 @@ export async function PersonaFeed({ persona }: { persona: string }) {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="md-title-large text-md-on-surface">
-          Today for <span className="text-md-primary">{feed.persona_name}</span>
-        </h2>
+        <h2 className="md-title-large text-md-on-surface">The full stream</h2>
         <span className="md-label-small text-md-on-surface-variant/70">
-          ranked by signal · {feed.coverage.scored.toLocaleString()} of{" "}
+          everything ranked by signal · {feed.coverage.scored.toLocaleString()} of{" "}
           {feed.coverage.total.toLocaleString()} scored ({pct}%)
         </span>
       </div>

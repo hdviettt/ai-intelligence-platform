@@ -296,28 +296,36 @@ def trigger(body: TriggerIn | None = None,
 # --- briefing trigger (token-gated) ---
 
 class BriefingTriggerIn(BaseModel):
-    kind: str = "daily"          # 'daily' | 'weekly'
-    days: int | None = None      # override the look-back window
+    kind: str = "daily"            # 'daily' | 'weekly'
+    persona: str | None = None     # one persona key, or None = every enabled persona
+    days: int | None = None        # override the look-back window
 
 
 class BriefingTriggerResult(BaseModel):
     ok: bool
     kind: str
-    article_count: int
-    provider: str
-    chars: int
+    generated: list[dict]          # one {persona, threads, article_count} per brief
 
 
 @router.post("/briefing", response_model=BriefingTriggerResult)
 def trigger_briefing(body: BriefingTriggerIn | None = None,
                      x_admin_token: str = Header(default="")) -> BriefingTriggerResult:
-    """Generate + store a fresh briefing now. Ensures the table exists first so this
-    works on a fresh prod DB without a separate migrate step."""
+    """Generate + store a fresh briefing per persona now. Ensures the schema exists
+    first so this works on a fresh prod DB without a separate migrate step."""
     _require_admin(x_admin_token)
     body = body or BriefingTriggerIn()
     briefing.ensure_schema()
-    b = briefing.generate_and_save(kind=body.kind, days=body.days)
-    return BriefingTriggerResult(
-        ok=bool(b.citations), kind=b.kind, article_count=b.article_count,
-        provider=b.provider, chars=len(b.narrative),
-    )
+
+    from app import personas as _personas
+    if body.persona:
+        keys = [body.persona]
+    else:
+        keys = [p.key for p in _personas.list_personas(enabled_only=True)] or ["ceo"]
+
+    generated = []
+    for key in keys:
+        b = briefing.generate_and_save(kind=body.kind, persona=key, days=body.days)
+        generated.append(
+            {"persona": key, "threads": len(b.threads), "article_count": b.article_count}
+        )
+    return BriefingTriggerResult(ok=bool(generated), kind=body.kind, generated=generated)

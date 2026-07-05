@@ -78,6 +78,7 @@ export type BriefingThread = {
 
 export type Briefing = {
   kind: string;
+  persona: string;
   lede: string;
   threads: BriefingThread[];
   citations: BriefingCitation[];
@@ -89,8 +90,10 @@ export type Briefing = {
   generated_at: string | null;
 };
 
-export async function getBriefing(kind = "daily"): Promise<Briefing | null> {
-  const res = await fetch(`${BASE}/briefing?kind=${kind}`, { cache: "no-store" });
+export async function getBriefing(kind = "daily", persona = "ceo"): Promise<Briefing | null> {
+  const res = await fetch(`${BASE}/briefing?kind=${kind}&persona=${persona}`, {
+    cache: "no-store",
+  });
   if (!res.ok) throw new Error(`briefing failed: ${res.status}`);
   return res.json(); // null when none has been generated yet
 }

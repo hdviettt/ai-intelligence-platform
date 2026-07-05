@@ -40,13 +40,20 @@ function SourceCard({ c }: { c: BriefingCitation }) {
   );
 }
 
-// The auto-generated daily briefing — a lede plus themed threads, each with an AI
-// description and its source cards (Google Web Guide layout). Renders nothing until
-// the first briefing exists, so the page is safe before then.
-export async function DailyBriefing() {
+// The auto-generated daily briefing, written through a persona's lens — a lede plus
+// themed threads, each with an AI description and its source cards (Google Web Guide
+// layout). Renders nothing until the first briefing exists, so the page is safe before
+// then.
+export async function DailyBriefing({
+  persona = "ceo",
+  personaName,
+}: {
+  persona?: string;
+  personaName?: string;
+}) {
   let briefing;
   try {
-    briefing = await getBriefing("daily");
+    briefing = await getBriefing("daily", persona);
   } catch {
     return null;
   }
@@ -61,7 +68,10 @@ export async function DailyBriefing() {
           <Icon name="auto_awesome" size={18} filled />
         </span>
         <div className="min-w-0">
-          <h2 className="md-title-large leading-tight text-md-on-surface">The daily brief</h2>
+          <h2 className="md-title-large leading-tight text-md-on-surface">
+            Today&rsquo;s brief{personaName ? " for " : ""}
+            {personaName && <span className="text-md-primary">{personaName}</span>}
+          </h2>
           <p className="md-label-small text-md-on-surface-variant/70">
             {[fmtDate(briefing.generated_at), `${briefing.article_count} sources`, "auto-synthesized"]
               .filter(Boolean)
