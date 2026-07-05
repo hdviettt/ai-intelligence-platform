@@ -156,12 +156,22 @@ class BriefingCitationOut(BaseModel):
     title: str
     url: str
     source: str
+    snippet: str | None
+    published_at: str | None
+
+
+class BriefingThreadOut(BaseModel):
+    title: str
+    summary: str
+    sources: list[int]
 
 
 class BriefingOut(BaseModel):
     kind: str
-    narrative: str
+    lede: str
+    threads: list[BriefingThreadOut]
     citations: list[BriefingCitationOut]
+    narrative: str
     window_start: str | None
     window_end: str | None
     article_count: int
@@ -176,11 +186,19 @@ def get_briefing(kind: str = "daily") -> BriefingOut | None:
         return None
     return BriefingOut(
         kind=b.kind,
-        narrative=b.narrative,
+        lede=b.lede,
+        threads=[
+            BriefingThreadOut(title=t.title, summary=t.summary, sources=t.sources)
+            for t in b.threads
+        ],
         citations=[
-            BriefingCitationOut(n=c.n, title=c.title, url=c.url, source=c.source)
+            BriefingCitationOut(
+                n=c.n, title=c.title, url=c.url, source=c.source,
+                snippet=c.snippet, published_at=c.published_at,
+            )
             for c in b.citations
         ],
+        narrative=b.narrative,
         window_start=str(b.window_start) if b.window_start else None,
         window_end=str(b.window_end) if b.window_end else None,
         article_count=b.article_count,

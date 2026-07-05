@@ -122,6 +122,15 @@ sources, and trigger ingests on demand. Adding a feed is now a form, not a deplo
 
 ## What's next
 
+**▶ Agreed focus (Jul 2026), in priority order:**
+1. **Unblock signal scoring** — the root bottleneck; raises the quality ceiling of
+   both the persona feed and the daily brief (both currently fall back to recency).
+2. **Weekly brief** — same engine as the daily brief, wider window (`kind=weekly`).
+3. **Scraping connector** — unlock sources without RSS (Anthropic, Meta, The Batch).
+
+*In progress: restructuring the daily brief into themed clusters (Google Web Guide
+style) — a lede + thematic threads, each with an AI description and source cards.*
+
 **The real bet — the differentiator (start here).**
 - [ ] **Signal-over-hype ranking.** A visible signal score on every item —
       "does this actually change anything?" — and the option to rank by it.

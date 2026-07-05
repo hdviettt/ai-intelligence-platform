@@ -59,12 +59,29 @@ export async function getTrending(limit = 10): Promise<Trending[]> {
   return res.json();
 }
 
-// --- Daily / weekly briefing (the auto-generated "what's new + so what") ---
+// --- Daily / weekly briefing (structured "what's new + so what", Web Guide style) ---
+
+export type BriefingCitation = {
+  n: number;
+  title: string;
+  url: string;
+  source: string;
+  snippet: string | null;
+  published_at: string | null;
+};
+
+export type BriefingThread = {
+  title: string;
+  summary: string;
+  sources: number[]; // citation n's belonging to this thread
+};
 
 export type Briefing = {
   kind: string;
+  lede: string;
+  threads: BriefingThread[];
+  citations: BriefingCitation[];
   narrative: string;
-  citations: Citation[];
   window_start: string | null;
   window_end: string | null;
   article_count: number;
