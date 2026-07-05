@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 
 from app.db import get_connection
 from app.embed import chunk_text, embed
+from app.scoring import score_pending
 from app.ingest import arxiv, hackernews, rss
 from app.ingest.base import (
     IngestSource,
@@ -43,6 +44,7 @@ class IngestResult:
 class PipelineResult:
     ingests: list[IngestResult] = field(default_factory=list)
     embedded: int = 0
+    scored: int = 0
     total_before: int = 0
     total_after: int = 0
     chunks_after: int = 0
@@ -172,6 +174,13 @@ def run_pipeline(names: list[str] | None = None, max_override: int | None = None
 
     ingests = run_ingest(names, max_override=max_override)
     embedded = embed_pending()
+    # Score the freshest unscored articles so the brief selects on real signal, not
+    # recency. Bounded per run to bound cost/time; scoring must never break ingest.
+    try:
+        scored = score_pending(limit=300, order="recent")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[pipeline] scoring skipped: {type(exc).__name__}: {exc}")
+        scored = 0
 
     with get_connection() as conn:
         total_after = _count(conn, "articles")
@@ -194,6 +203,6 @@ def run_pipeline(names: list[str] | None = None, max_override: int | None = None
         )
         conn.commit()
 
-    return PipelineResult(ingests=ingests, embedded=embedded,
+    return PipelineResult(ingests=ingests, embedded=embedded, scored=scored,
                           total_before=total_before, total_after=total_after,
                           chunks_after=chunks_after)

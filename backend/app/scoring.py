@@ -21,9 +21,12 @@ from app.config import get_settings
 from app.db import get_connection
 from app.personas import Persona, list_personas
 
-# Pacing between scoring calls. Anthropic Haiku has generous limits; modest pacing
-# plus retry/backoff keeps us safely under whatever tier is active.
-SCORE_DELAY = 1.0  # seconds between scoring calls
+# Pacing between scoring calls. Groq gpt-oss-120b is fast; light pacing plus
+# retry/backoff keeps us under the RPM ceiling. Override via SCORE_DELAY env for a
+# faster one-off backfill on a paid tier.
+import os
+
+SCORE_DELAY = float(os.getenv("SCORE_DELAY", "0.3"))  # seconds between scoring calls
 
 # Persona-independent rubric. Concrete, low-temperature, JSON out.
 RUBRIC = (
@@ -128,13 +131,22 @@ def _judge_anthropic(prompt: str, cfg) -> Score:
 def _judge_groq(prompt: str, cfg) -> Score:
     from groq import Groq
 
+    # Dedicated scoring model (gpt-oss-120b), NOT groq_model (the fast search overview
+    # model). Scoring is a rubric/classification task, so reasoning_effort="low" keeps
+    # the whole-corpus backfill fast and near-budget (medium reasoning bills hidden
+    # reasoning tokens per call). Fall back to no reasoning_effort if it's rejected;
+    # json_object mode is kept in both branches for clean parsing.
     client = Groq(api_key=cfg.groq_api_key)
-    resp = client.chat.completions.create(
-        model=cfg.groq_model,
+    kwargs = dict(
+        model=cfg.scoring_model,
         messages=[{"role": "user", "content": prompt}],
         temperature=0,
         response_format={"type": "json_object"},
     )
+    try:
+        resp = client.chat.completions.create(reasoning_effort="low", **kwargs)
+    except Exception:  # noqa: BLE001
+        resp = client.chat.completions.create(**kwargs)
     return _parse(resp.choices[0].message.content)
 
 

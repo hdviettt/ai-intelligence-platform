@@ -28,51 +28,98 @@ DEFAULT_LIMIT = 18
 _MIGRATIONS = ("008_briefings.sql", "009_briefing_structure.sql", "010_briefing_persona.sql")
 
 SYSTEM_TASK = (
-    "You are the sharp analyst behind a daily AI-intelligence briefing. The numbered "
-    "sources include real article BODY text, not just headlines — read it and extract "
-    "the actual substance (specific numbers, players, claims), don't just rephrase "
-    "titles. Produce a STRUCTURED briefing that organises the day into a few clear "
-    "themes (like Google's Web Guide) — NOT a wall of prose."
+    "You are the sharp analyst behind a daily AI-intelligence briefing. Work in two "
+    "passes, silently. PASS 1 — judgment: read every numbered source (they include real "
+    "article BODY text, not just headlines), decide which one or two stories actually "
+    "matter most to THIS reader today, and group sources that touch the same company, "
+    "model, product, lawsuit, or underlying tension into one theme. PASS 2 — writing: "
+    "produce the structured briefing below, leading with the story you judged biggest and "
+    "extracting the ACTUAL substance (specific numbers, named players, concrete claims) "
+    "from the bodies — never just rephrase titles or snippets. Organise the day into a "
+    "few clear, SYNTHESISED themes (like Google's Web Guide) — not a wall of prose, and "
+    "not a list of disconnected single-item blurbs."
 )
 
 SYSTEM_JSON = (
     "Return ONLY valid JSON of this exact shape:\n"
     '{\n'
+    '  "quiet_day": <true|false>,\n'
     '  "lede": "<one or two sentences naming the single biggest concrete story or '
-    'through-line for this reader right now, with the stakes>",\n'
+    'through-line for THIS reader right now, with the stakes and at least one hard '
+    'specific — a number, name, or date>",\n'
     '  "threads": [\n'
     '    {\n'
     '      "title": "<3-6 word theme heading>",\n'
-    '      "summary": "<1-2 sentences of the real substance: what happened, named '
-    'players, specific numbers>",\n'
-    '      "so_what": "<ONE sentence: what THIS reader should decide, watch, or do about '
-    'it — the implication, not a recap>",\n'
+    '      "summary": "<1-2 sentences of real substance: what happened, named players, '
+    'specific numbers pulled from the body>",\n'
+    '      "so_what": "<ONE sentence: a concrete decision, watch-item, threshold, or '
+    'number for THIS reader — not a recap, not generic advice>",\n'
     '      "sources": [<source numbers belonging to this theme>]\n'
     '    }\n'
     '  ]\n'
     '}\n\n'
-    "Rules:\n"
-    "- The lede names the single biggest CONCRETE story or through-line — ideally "
-    "connecting related items into one thread (who did what, and the stakes for this "
-    "reader). Never generic filler like 'AI is evolving rapidly' or 'significant "
-    "developments'.\n"
-    "- 3 to 5 threads, ordered by importance to this reader. The FIRST thread must "
-    "expand on the lede's main story so the two align. Group related stories into one "
-    "thread rather than listing them separately.\n"
-    "- 'summary' states the real substance pulled from the body (players, numbers, "
-    "specifics) and separates genuine signal from hype. 'so_what' is a single, "
-    "concrete implication for THIS reader — what to decide, watch, or do — never a "
-    "restatement of the summary. Surface disagreement between sources where it exists.\n"
+    "Choosing the lede (do this BEFORE writing):\n"
+    "- Rank the stories by how much each changes what THIS reader should do or believe — "
+    "NOT by how recently they were published and NOT by their order in the list below. "
+    "The biggest story is rarely the newest one, and never automatically source [1].\n"
+    "- The lede is that #1 story (or the through-line connecting the top related "
+    "stories), stated with a hard specific. The FIRST thread must be that same story so "
+    "the two align. A single vendor tweaking one product, one funding blurb, or a "
+    "personal side-project is almost never the lede.\n\n"
+    "Synthesis (this is the entire point of the brief):\n"
+    "- Before writing, cluster the sources: any sources about the same company, model, "
+    "product, lawsuit, or underlying tension MUST be combined into ONE thread with a "
+    "stated through-line — do not give each source its own thread. Name the connection.\n"
+    "- A thread may cite a single source ONLY if genuinely no other source relates to "
+    "it. If two of your threads could be argued to share a theme, merge them.\n"
+    "- Surface disagreement or tension between sources where it exists.\n\n"
+    "Writing rules:\n"
+    "- 'summary' states real substance from the BODY (players, numbers, specifics) and "
+    "separates signal from hype. 'so_what' is a single concrete implication for THIS "
+    "reader — a decision, a watch-item, a threshold, a number to track — and must NOT "
+    "restate the summary or read like consultant filler. Banned so_what openings/verbs "
+    "unless immediately followed by a specific number, name, or date: 'Re-evaluate', "
+    "'Reassess', 'Monitor', 'Keep an eye on', 'Consider', 'Prepare for', 'Stay ahead', "
+    "'Audit your strategy'.\n"
+    "- Ban vague quantifiers. Never write 'substantial', 'significant', 'massive', "
+    "'several', 'many', 'large', or 'a lot of' in place of a figure. Use the real number "
+    "from the body; if the body gives none, write 'an undisclosed amount' or drop the "
+    "claim — never dress a missing number up as 'substantial'.\n"
     "- Prioritise substantive developments (model/product releases, research that "
-    "changes something, notable industry or policy moves) over trivia, personal "
-    "projects, or incremental preprints — simply leave the trivia out.\n"
-    "- Every thread must cite at least one real source number; never invent a number. "
-    "A source may appear in at most one thread; not every source must be used.\n"
-    "- Be concrete and specific. No markdown, and NO inline source references of any "
-    "kind inside the text — not '[1]', not '(source 14)', not 'per source 8'. The "
-    "sources array carries the links.\n"
-    "- If the window is genuinely thin on news that matters to this reader, say so "
-    "honestly in the lede and use fewer threads."
+    "changes something, notable industry, legal, or policy moves) over trivia, gadget "
+    "deals, personal side-projects, opinion, or incremental preprints — leave trivia "
+    "out entirely rather than making a thread for it. Never invent a source number, and "
+    "use each source in at most one thread.\n"
+    "- Be concrete. No markdown. NO inline source references of any kind — not '[1]', "
+    "not '(source 14)', not 'per source 8'. The sources array carries the links.\n\n"
+    "Honesty on a quiet day (this outranks hitting any thread count):\n"
+    "- If, after ranking, the window has no genuinely important AI news for this reader "
+    "(mostly gadget round-ups, side-projects, opinion, plus one or two minor items), set "
+    '"quiet_day": true, SAY SO plainly in the lede (e.g. \'Quiet day for AI news that '
+    "moves the needle — today's items are minor'), and write only 1-3 short threads. A "
+    "short honest brief beats an inflated one. On a normal or busy day set "
+    '"quiet_day": false and write 3-5 threads. Never manufacture importance or stakes '
+    "the sources do not support."
+)
+
+# First pass of the two-pass generation: the model acts as an EDITOR, committing to a
+# ranking + clusters BEFORE any prose is written. Separating judgment from writing is
+# what stops the writer satisficing into a recency-ordered list of disconnected blurbs.
+SYSTEM_PLAN = (
+    "You are the editor of a daily AI-intelligence briefing for this reader. Read every "
+    "numbered source (they include real BODY text). Output ONLY JSON:\n"
+    '{\n'
+    '  "quiet_day": <true|false>,\n'
+    '  "top_story": <source number of the single most important story for THIS reader>,\n'
+    '  "clusters": [ {"theme":"<short>","sources":[<numbers>],'
+    '"why_it_matters":"<one line>"} ]\n'
+    '}\n'
+    "Rank by how much each story changes what THIS reader should do or believe — NOT by "
+    "recency and NOT by the order sources appear. The biggest story is rarely the "
+    "newest. Merge every source about the same company, model, lawsuit, or tension into "
+    "one cluster. Drop trivia (gadget deals, personal side-projects, opinion, "
+    "glossaries). If nothing genuinely matters to this reader, set quiet_day true and "
+    "keep clusters minimal."
 )
 
 
@@ -212,27 +259,36 @@ def _build_context(rows: list[tuple]) -> tuple[str, list[Citation], object, obje
     return "\n\n".join(blocks), cites, window_start, window_end
 
 
-def _ask_groq(system: str, context: str, span: str) -> str:
+def _ask_groq(system: str, user: str, temperature: float = 0.2,
+              reasoning: str = "high") -> str:
     from groq import Groq
 
     cfg = get_settings()
     client = Groq(api_key=cfg.groq_api_key)
     messages = [
         {"role": "system", "content": system},
-        {"role": "user", "content": f"Time span: {span}\n\nSources:\n{context}\n\nReturn the JSON briefing."},
+        {"role": "user", "content": user},
     ]
-    # Strongest Groq model for the once-a-day brief; fall back to plain completion if
-    # the model rejects the json_object response format.
-    try:
-        resp = client.chat.completions.create(
-            model=cfg.briefing_model, messages=messages, temperature=0.4,
-            response_format={"type": "json_object"},
-        )
-    except Exception:  # noqa: BLE001
-        resp = client.chat.completions.create(
-            model=cfg.briefing_model, messages=messages, temperature=0.4,
-        )
-    return resp.choices[0].message.content
+    # Low temperature for a ranking/extraction task (kills run-to-run variance), and
+    # gpt-oss-120b is a reasoning model — more reasoning buys sharper ranking/clustering.
+    # The plan pass (judgment) runs at high; the write pass (executing the plan) at
+    # medium — faster/cheaper without losing the ranking quality. Degrade gracefully if
+    # the model rejects reasoning_effort or json mode; surface the error only if all fail.
+    last_exc: Exception | None = None
+    for extra in (
+        {"reasoning_effort": reasoning, "response_format": {"type": "json_object"}},
+        {"response_format": {"type": "json_object"}},
+        {},
+    ):
+        try:
+            resp = client.chat.completions.create(
+                model=cfg.briefing_model, messages=messages,
+                temperature=temperature, **extra,
+            )
+            return resp.choices[0].message.content
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+    raise last_exc  # type: ignore[misc]
 
 
 def _ask_anthropic(system: str, context: str, span: str) -> str:
@@ -320,8 +376,25 @@ def generate(kind: str = "daily", persona: str = "ceo",
     context, cites, ws, we = _build_context(rows)
     provider = get_settings().synthesis_provider
     span = f"last {days} days"
-    system = _system(p)
-    raw = _ask_anthropic(system, context, span) if provider == "anthropic" else _ask_groq(system, context, span)
+    if provider == "anthropic":
+        raw = _ask_anthropic(_system(p), context, span)
+    else:
+        # Two-pass: an EDITOR ranks + clusters first (judgment), then the WRITER composes
+        # the brief from that plan (prose). Passing the committed plan into the writer is
+        # what makes it lead with the biggest story and merge related sources instead of
+        # echoing input order. If the plan call fails, fall back to a single write pass.
+        lens = _lens(p)
+        src_block = f"Time span: {span}\n\nSources:\n{context}"
+        try:
+            plan = _ask_groq(f"{lens}\n\n{SYSTEM_PLAN}",
+                             f"{src_block}\n\nReturn the plan JSON.", reasoning="high")
+        except Exception:  # noqa: BLE001
+            plan = ""
+        writer_user = (
+            (f"EDITOR'S PLAN (obey this ranking and these clusters):\n{plan}\n\n" if plan else "")
+            + f"{src_block}\n\nReturn the JSON briefing."
+        )
+        raw = _ask_groq(_system(p), writer_user, reasoning="medium")
     data = _parse_json(raw)
     lede = _strip_refs(str(data.get("lede", "")))
     threads = _validate_threads(data.get("threads"), {c.n for c in cites})

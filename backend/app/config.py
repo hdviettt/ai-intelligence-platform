@@ -29,9 +29,12 @@ class Settings(BaseSettings):
     # bodies where llama-3.3-70b only rephrases headlines.
     briefing_model: str = "openai/gpt-oss-120b"
 
-    # Signal judge — Anthropic (Haiku) for backfill: higher rate limits + sharper
-    # persona judgment. Groq remains a fallback.
-    scoring_provider: str = "anthropic"  # "anthropic" | "groq"
+    # Signal judge. Anthropic's low tier rate-limited the backfill to ~45/10k articles,
+    # so scoring runs on Groq gpt-oss-120b: whole-corpus scoring costs ~$3-5 and the
+    # 6h cron keeps fresh articles scored so the brief selects on real signal, not
+    # recency. gpt-oss-120b (not the fast search model) for analyst-grade judgment.
+    scoring_provider: str = "groq"  # "groq" | "anthropic"
+    scoring_model: str = "openai/gpt-oss-120b"
 
     # Ingestion
     user_agent: str = "ai-search-experience/0.1 (+https://github.com/hdviettt/ai-search-experience)"
