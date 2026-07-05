@@ -73,6 +73,7 @@ export type BriefingCitation = {
 export type BriefingThread = {
   title: string;
   summary: string;
+  so_what: string; // one-line implication for the reader
   sources: number[]; // citation n's belonging to this thread
 };
 

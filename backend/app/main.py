@@ -163,6 +163,7 @@ class BriefingCitationOut(BaseModel):
 class BriefingThreadOut(BaseModel):
     title: str
     summary: str
+    so_what: str
     sources: list[int]
 
 
@@ -190,7 +191,7 @@ def get_briefing(kind: str = "daily", persona: str = "ceo") -> BriefingOut | Non
         persona=b.persona_key,
         lede=b.lede,
         threads=[
-            BriefingThreadOut(title=t.title, summary=t.summary, sources=t.sources)
+            BriefingThreadOut(title=t.title, summary=t.summary, so_what=t.so_what, sources=t.sources)
             for t in b.threads
         ],
         citations=[

@@ -43,8 +43,10 @@ SYSTEM_JSON = (
     '  "threads": [\n'
     '    {\n'
     '      "title": "<3-6 word theme heading>",\n'
-    '      "summary": "<2-3 sentences: the substance, the so-what for this reader, and '
-    'what to watch>",\n'
+    '      "summary": "<1-2 sentences of the real substance: what happened, named '
+    'players, specific numbers>",\n'
+    '      "so_what": "<ONE sentence: what THIS reader should decide, watch, or do about '
+    'it — the implication, not a recap>",\n'
     '      "sources": [<source numbers belonging to this theme>]\n'
     '    }\n'
     '  ]\n'
@@ -57,10 +59,10 @@ SYSTEM_JSON = (
     "- 3 to 5 threads, ordered by importance to this reader. The FIRST thread must "
     "expand on the lede's main story so the two align. Group related stories into one "
     "thread rather than listing them separately.\n"
-    "- Each thread summary must (a) state the real substance pulled from the body — "
-    "name players, numbers, specifics; (b) spell out the concrete 'so what' for this "
-    "reader — what they should decide, watch, or do; (c) separate genuine signal from "
-    "hype, and surface disagreement between sources where it exists.\n"
+    "- 'summary' states the real substance pulled from the body (players, numbers, "
+    "specifics) and separates genuine signal from hype. 'so_what' is a single, "
+    "concrete implication for THIS reader — what to decide, watch, or do — never a "
+    "restatement of the summary. Surface disagreement between sources where it exists.\n"
     "- Prioritise substantive developments (model/product releases, research that "
     "changes something, notable industry or policy moves) over trivia, personal "
     "projects, or incremental preprints — simply leave the trivia out.\n"
@@ -117,6 +119,7 @@ class Citation:
 class Thread:
     title: str
     summary: str
+    so_what: str = ""
     sources: list[int] = field(default_factory=list)
 
 
@@ -285,6 +288,7 @@ def _validate_threads(items, valid_ns: set[int]) -> list[Thread]:
             continue
         title = _strip_refs(str(t.get("title", "")))
         summary = _strip_refs(str(t.get("summary", "")))
+        so_what = _strip_refs(str(t.get("so_what", "")))
         srcs: list[int] = []
         for x in t.get("sources") or []:
             try:
@@ -295,13 +299,14 @@ def _validate_threads(items, valid_ns: set[int]) -> list[Thread]:
                 srcs.append(n)
                 used.add(n)
         if title and srcs:
-            out.append(Thread(title=title, summary=summary, sources=srcs))
+            out.append(Thread(title=title, summary=summary, so_what=so_what, sources=srcs))
     return out[:6]
 
 
 def _fallback_narrative(lede: str, threads: list[Thread]) -> str:
     parts = [lede] if lede else []
-    parts += [f"{t.title}: {t.summary}".strip() for t in threads]
+    for t in threads:
+        parts.append(f"{t.title}: {t.summary} {t.so_what}".strip())
     return "\n\n".join(p for p in parts if p) or "No briefing available."
 
 
@@ -326,7 +331,8 @@ def generate(kind: str = "daily", persona: str = "ceo",
 
 def save(b: Briefing) -> int:
     threads_json = json.dumps(
-        [{"title": t.title, "summary": t.summary, "sources": t.sources} for t in b.threads]
+        [{"title": t.title, "summary": t.summary, "so_what": t.so_what, "sources": t.sources}
+         for t in b.threads]
     )
     cites_json = json.dumps(
         [{"n": c.n, "article_id": c.article_id, "title": c.title, "url": c.url,
@@ -372,7 +378,8 @@ def latest(kind: str = "daily", persona: str = "ceo") -> Briefing | None:
         for c in (cites_json if isinstance(cites_json, list) else [])
     ]
     threads = [
-        Thread(title=t.get("title", ""), summary=t.get("summary", ""), sources=t.get("sources", []))
+        Thread(title=t.get("title", ""), summary=t.get("summary", ""),
+               so_what=t.get("so_what", ""), sources=t.get("sources", []))
         for t in (threads_json if isinstance(threads_json, list) else [])
     ]
     return Briefing(kind, persona_key, lede or "", threads, cites, ws, we, count, provider,
