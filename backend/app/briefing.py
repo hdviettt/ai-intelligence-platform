@@ -33,20 +33,22 @@ SYSTEM_TASK = (
     "article BODY text, not just headlines), decide which one or two stories actually "
     "matter most to THIS reader today, and group sources that touch the same company, "
     "model, product, lawsuit, or underlying tension into one theme. PASS 2 — writing: "
-    "produce the structured briefing below, leading with the story you judged biggest and "
-    "extracting the ACTUAL substance (specific numbers, named players, concrete claims) "
-    "from the bodies — never just rephrase titles or snippets. Organise the day into a "
-    "few clear, SYNTHESISED themes (like Google's Web Guide) — not a wall of prose, and "
-    "not a list of disconnected single-item blurbs."
+    "produce the structured briefing below, OPENING with a short overview that ties "
+    "together the day's most important developments, then extracting the ACTUAL substance "
+    "(specific numbers, named players, concrete claims) from the bodies — never just "
+    "rephrase titles or snippets. Organise the day into a few clear, SYNTHESISED themes "
+    "(like Google's Web Guide) — not a wall of prose, and not a list of disconnected "
+    "single-item blurbs."
 )
 
 SYSTEM_JSON = (
     "Return ONLY valid JSON of this exact shape:\n"
     '{\n'
     '  "quiet_day": <true|false>,\n'
-    '  "lede": "<one or two sentences naming the single biggest concrete story or '
-    'through-line for THIS reader right now, with the stakes and at least one hard '
-    'specific — a number, name, or date>",\n'
+    '  "lede": "<a 2-3 sentence OVERVIEW of the whole day for THIS reader: tie together '
+    "the most important developments across the threads below, each carrying a hard "
+    "specific (a number, name, or date). This is the gist that the threads then break "
+    'down — NOT a restatement of only the first thread>",\n'
     '  "threads": [\n'
     '    {\n'
     '      "title": "<3-6 word theme heading>",\n'
@@ -58,14 +60,15 @@ SYSTEM_JSON = (
     '    }\n'
     '  ]\n'
     '}\n\n'
-    "Choosing the lede (do this BEFORE writing):\n"
+    "Writing the overview (rank BEFORE writing):\n"
     "- Rank the stories by how much each changes what THIS reader should do or believe — "
-    "NOT by how recently they were published and NOT by their order in the list below. "
-    "The biggest story is rarely the newest one, and never automatically source [1].\n"
-    "- The lede is that #1 story (or the through-line connecting the top related "
-    "stories), stated with a hard specific. The FIRST thread must be that same story so "
-    "the two align. A single vendor tweaking one product, one funding blurb, or a "
-    "personal side-project is almost never the lede.\n\n"
+    "NOT by how recently they were published and NOT by their order in the list below.\n"
+    "- The lede is a 2-3 sentence OVERVIEW covering the top 2-3 developments of the day, "
+    "tied together, each with a hard specific. It sits ABOVE the threads and summarises "
+    "them, so it must genuinely span the threads — not just the first one. The threads "
+    "then break the day into its distinct themes; do NOT make the first thread a mere "
+    "restatement of the lede. A single vendor tweaking one product, one funding blurb, or "
+    "a personal side-project is almost never worth the overview.\n\n"
     "Synthesis (this is the entire point of the brief):\n"
     "- Before writing, cluster the sources: any sources about the same company, model, "
     "product, lawsuit, or underlying tension MUST be combined into ONE thread with a "
