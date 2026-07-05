@@ -23,8 +23,12 @@ from app.config import get_settings
 from app.db import get_connection
 from app.discovery import theme_for
 
-DEFAULT_DAYS = {"daily": 4, "weekly": 10}
-DEFAULT_LIMIT = 18
+# Wider candidate pool than the brief needs: the model's plan pass ranks by
+# IMPORTANCE, so it must SEE the important-but-not-newest items (a model launch from
+# 3 days ago beats an operational blurb from today). Too small a limit lets recency
+# cut the big stories before the model ever sees them.
+DEFAULT_DAYS = {"daily": 5, "weekly": 12}
+DEFAULT_LIMIT = 28
 _MIGRATIONS = ("008_briefings.sql", "009_briefing_structure.sql", "010_briefing_persona.sql")
 
 SYSTEM_TASK = (
