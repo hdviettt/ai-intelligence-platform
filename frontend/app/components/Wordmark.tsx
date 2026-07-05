@@ -1,27 +1,27 @@
 import Link from "next/link";
 
-// Mark: four neutral source dots converging on one blue synthesized center —
-// "many sources, one read." Monochrome by design; the single accent is the
-// synthesis at the middle, nothing else.
+// Crux — the Southern Cross. Four bright stars in a cross (plus one faint), with the
+// brightest at the foot carrying the single blue accent. Neutral stars use
+// currentColor so the mark adapts to any surface; only the foot star is fixed to the
+// brand blue. Faint connecting lines read the shape as a cross, not scattered dots.
 export function Wordmark({ size = "sm" }: { size?: "sm" | "lg" }) {
-  const dim = size === "lg" ? "h-9 w-9" : "h-7 w-7";
-  const text = size === "lg" ? "md-title-large" : "md-title-medium";
+  const dim = size === "lg" ? "h-8 w-8" : "h-6 w-6";
+  const text = size === "lg" ? "text-[26px]" : "text-xl";
   return (
-    <Link href="/" className="group flex items-center gap-2">
-      <span
-        className={`${dim} flex items-center justify-center rounded-full bg-md-surface-container transition-colors duration-200 ease-md-standard group-hover:bg-md-surface-container-high`}
-        aria-hidden
-      >
-        <svg viewBox="0 0 24 24" className="h-full w-full">
-          <circle cx="12" cy="5.25" r="2" className="fill-md-outline" />
-          <circle cx="18.75" cy="12" r="2" className="fill-md-outline" />
-          <circle cx="12" cy="18.75" r="2" className="fill-md-outline" />
-          <circle cx="5.25" cy="12" r="2" className="fill-md-outline" />
-          <circle cx="12" cy="12" r="3.25" className="fill-md-primary" />
-        </svg>
-      </span>
-      <span className={`${text} tracking-tight text-md-on-surface`}>
-        AI<span className="text-md-primary">Search</span>
+    <Link href="/" className="group flex items-center gap-2 text-md-on-surface">
+      <svg viewBox="0 0 100 100" className={`${dim} shrink-0`} aria-hidden="true">
+        <g className="stroke-current opacity-20" strokeWidth="1.1" strokeLinecap="round" fill="none">
+          <line x1="52" y1="15" x2="48" y2="87" />
+          <line x1="19" y1="46" x2="82" y2="54" />
+        </g>
+        <circle cx="52" cy="15" r="5.4" className="fill-current" />
+        <circle cx="19" cy="46" r="4.9" className="fill-current" />
+        <circle cx="82" cy="54" r="4.4" className="fill-current" />
+        <circle cx="61" cy="64" r="2.6" className="fill-current opacity-40" />
+        <circle cx="48" cy="87" r="7" className="fill-md-primary" />
+      </svg>
+      <span className={`${text} font-semibold tracking-tight`}>
+        Cru<span className="text-md-primary">x</span>
       </span>
     </Link>
   );
