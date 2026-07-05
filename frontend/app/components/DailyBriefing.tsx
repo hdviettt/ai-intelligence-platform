@@ -1,4 +1,4 @@
-import { getBriefing, type BriefingCitation, type BriefingThread } from "@/lib/api";
+import type { Briefing, BriefingCitation, BriefingThread } from "@/lib/api";
 import { hostOf } from "@/lib/format";
 import { Icon } from "./Icon";
 import { SourceIcon } from "./SourceIcon";
@@ -41,9 +41,9 @@ function SourceLine({ cites }: { cites: BriefingCitation[] }) {
   );
 }
 
-// One thread as a typographic block — heading, substance, a blue left-ruled
-// "why it matters" (a border keeps full chroma in dark, where a tint dies), and
-// a quiet source line. Blocks are divided by a hairline, never boxed.
+// One thread as a typographic block — a themed heading, the substance, a blue
+// left-ruled "why it matters", then a quiet source line. Divided by hairlines,
+// never boxed. Threads are the BREAKDOWN of the overview above.
 function Thread({ t, byN }: { t: BriefingThread; byN: Map<number, BriefingCitation> }) {
   const cites = t.sources
     .map((n) => byN.get(n))
@@ -69,22 +69,16 @@ function Thread({ t, byN }: { t: BriefingThread; byN: Map<number, BriefingCitati
   );
 }
 
-// The auto-generated daily briefing, written through a persona's lens, rendered as
-// a broadsheet: an eyebrow, a dominant lede, then a hairline-separated column of
-// themed threads. Renders nothing until the first briefing exists.
-export async function DailyBriefing({
-  persona = "ceo",
+// The daily briefing, written through a persona's lens: an eyebrow, a lead-paragraph
+// OVERVIEW of the whole day, then the themed threads that break it down. The overview
+// reads as a summary (prose), not a giant headline competing with the thread titles.
+export function DailyBriefing({
+  briefing,
   personaName,
 }: {
-  persona?: string;
+  briefing: Briefing | null;
   personaName?: string;
 }) {
-  let briefing;
-  try {
-    briefing = await getBriefing("daily", persona);
-  } catch {
-    return null;
-  }
   if (!briefing || (!briefing.threads.length && !briefing.lede)) return null;
 
   const byN = new Map(briefing.citations.map((c) => [c.n, c]));
@@ -105,16 +99,18 @@ export async function DailyBriefing({
       {meta && <p className="mt-2 text-[13px] text-md-on-surface-variant/70">{meta}</p>}
 
       {briefing.lede && (
-        <p className="mt-5 text-[26px] font-normal leading-[1.28] tracking-[-0.02em] text-md-on-surface sm:text-[30px]">
+        <p className="mt-5 text-[20px] font-normal leading-[1.5] text-md-on-surface sm:text-[21px]">
           {briefing.lede}
         </p>
       )}
 
-      <ol className="mt-8">
-        {briefing.threads.map((t, i) => (
-          <Thread key={i} t={t} byN={byN} />
-        ))}
-      </ol>
+      {briefing.threads.length > 0 && (
+        <ol className="mt-9 border-t border-md-outline-variant pt-1">
+          {briefing.threads.map((t, i) => (
+            <Thread key={i} t={t} byN={byN} />
+          ))}
+        </ol>
+      )}
     </section>
   );
 }
@@ -127,8 +123,9 @@ export function BriefingSkeleton() {
         <div className="h-3 w-40 rounded shimmer" />
       </div>
       <div className="mt-6 space-y-2.5">
-        <div className="h-7 w-full rounded shimmer" />
-        <div className="h-7 w-3/4 rounded shimmer" />
+        <div className="h-5 w-full rounded shimmer" />
+        <div className="h-5 w-5/6 rounded shimmer" />
+        <div className="h-5 w-2/3 rounded shimmer" />
       </div>
       <div className="mt-10 space-y-8">
         {[0, 1, 2].map((s) => (
