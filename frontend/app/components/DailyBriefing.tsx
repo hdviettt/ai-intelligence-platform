@@ -25,20 +25,20 @@ function Item({ c }: { c: BriefingCitation }) {
         href={c.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="group block py-3.5 cursor-pointer"
+        className="group block py-3 cursor-pointer"
       >
-        <div className="flex items-center gap-1.5 text-[12.5px] text-md-on-surface-variant">
-          <SourceIcon url={c.url} size={14} />
+        <div className="flex items-center gap-1.5 text-[12px] text-md-on-surface-variant">
+          <SourceIcon url={c.url} size={13} />
           <span>{hostOf(c.url)}</span>
           {c.published_at && (
             <span className="text-md-on-surface-variant/70">· {timeAgo(c.published_at)}</span>
           )}
         </div>
-        <h4 className="mt-1 text-[16px] font-medium leading-snug text-md-primary underline-offset-2 group-hover:underline">
+        <h4 className="mt-0.5 text-[14px] font-medium leading-snug text-md-primary underline-offset-2 group-hover:underline">
           {c.title}
         </h4>
         {c.snippet && (
-          <p className="mt-1 text-[13px] leading-[1.5] text-md-on-surface-variant line-clamp-2">
+          <p className="mt-0.5 text-[12.5px] leading-[1.45] text-md-on-surface-variant line-clamp-2">
             {c.snippet}
           </p>
         )}
@@ -68,10 +68,23 @@ function Cluster({ t, byN }: { t: BriefingThread; byN: Map<number, BriefingCitat
         </p>
       )}
       <ol className="mt-4">
-        {items.map((c) => (
+        {items.slice(0, 3).map((c) => (
           <Item key={c.n} c={c} />
         ))}
       </ol>
+      {items.length > 3 && (
+        <details className="group">
+          <summary className="mx-auto mt-2 flex w-fit cursor-pointer items-center gap-1 rounded-full border border-md-outline-variant px-4 py-1.5 text-[13px] font-medium text-md-on-surface-variant transition-colors duration-200 ease-md-standard hover:bg-md-surface-container hover:text-md-on-surface">
+            More
+            <Icon name="expand_more" size={16} className="details-chevron" />
+          </summary>
+          <ol>
+            {items.slice(3).map((c) => (
+              <Item key={c.n} c={c} />
+            ))}
+          </ol>
+        </details>
+      )}
     </section>
   );
 }
