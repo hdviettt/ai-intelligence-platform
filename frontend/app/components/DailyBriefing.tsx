@@ -32,7 +32,7 @@ function Cluster({ t, byN }: { t: BriefingThread; byN: Map<number, BriefingCitat
         <p className="mt-2.5 text-[15px] leading-[1.6] text-md-on-surface">{t.summary}</p>
       )}
       {t.so_what && (
-        <p className="mt-2 text-[13px] leading-[1.5] text-md-on-surface-variant">
+        <p className="mt-2.5 text-[15px] leading-[1.6] text-md-on-surface-variant">
           <span className="font-medium text-md-on-surface">Why it matters.</span> {t.so_what}
         </p>
       )}
