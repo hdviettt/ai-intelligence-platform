@@ -25,18 +25,20 @@ function Item({ c }: { c: BriefingCitation }) {
         href={c.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="group block py-4 cursor-pointer"
+        className="group block py-3.5 cursor-pointer"
       >
-        <div className="flex items-center gap-1.5 text-[12px] text-md-on-surface-variant/70">
-          <SourceIcon url={c.url} size={12} />
+        <div className="flex items-center gap-1.5 text-[12.5px] text-md-on-surface-variant">
+          <SourceIcon url={c.url} size={14} />
           <span>{hostOf(c.url)}</span>
-          {c.published_at && <span>· {timeAgo(c.published_at)}</span>}
+          {c.published_at && (
+            <span className="text-md-on-surface-variant/70">· {timeAgo(c.published_at)}</span>
+          )}
         </div>
-        <h4 className="mt-1 text-[14px] font-medium leading-snug text-md-on-surface transition-colors duration-200 ease-md-standard group-hover:text-md-primary">
+        <h4 className="mt-1 text-[16px] font-medium leading-snug text-md-primary underline-offset-2 group-hover:underline">
           {c.title}
         </h4>
         {c.snippet && (
-          <p className="mt-0.5 text-[12.5px] leading-[1.5] text-md-on-surface-variant line-clamp-1">
+          <p className="mt-1 text-[13px] leading-[1.5] text-md-on-surface-variant line-clamp-2">
             {c.snippet}
           </p>
         )}
@@ -53,19 +55,19 @@ function Cluster({ t, byN }: { t: BriefingThread; byN: Map<number, BriefingCitat
     .filter((c): c is BriefingCitation => Boolean(c));
   if (!items.length) return null;
   return (
-    <section className="mt-10 border-t border-md-outline-variant pt-7 first:mt-8">
-      <h3 className="text-[20px] font-semibold leading-tight tracking-[-0.015em] text-md-on-surface">
+    <section className="mt-9 border-t border-md-outline-variant pt-7 first:mt-7">
+      <h3 className="text-[19px] font-medium leading-snug tracking-[-0.01em] text-md-on-surface">
         {t.title}
       </h3>
       {t.summary && (
-        <p className="mt-2.5 text-[15px] leading-[1.6] text-md-on-surface">{t.summary}</p>
+        <p className="mt-2 text-[14px] leading-[1.6] text-md-on-surface-variant">{t.summary}</p>
       )}
       {t.so_what && (
-        <p className="mt-2.5 text-[13px] leading-[1.5] text-md-on-surface-variant">
+        <p className="mt-2 text-[13px] leading-[1.5] text-md-on-surface-variant">
           <span className="font-medium text-md-on-surface">Why it matters.</span> {t.so_what}
         </p>
       )}
-      <ol className="mt-5">
+      <ol className="mt-4">
         {items.map((c) => (
           <Item key={c.n} c={c} />
         ))}
@@ -105,7 +107,7 @@ export function DailyBriefing({
       {meta && <p className="mt-1.5 text-[13px] text-md-on-surface-variant/70">{meta}</p>}
 
       {briefing.lede && (
-        <p className="mt-4 text-[16px] font-normal leading-[1.62] text-md-on-surface">
+        <p className="mt-3.5 text-[15px] font-normal leading-[1.65] text-md-on-surface">
           {briefing.lede}
         </p>
       )}
