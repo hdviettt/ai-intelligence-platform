@@ -1,5 +1,5 @@
 import type { Briefing, BriefingCitation, BriefingThread } from "@/lib/api";
-import { hostOf } from "@/lib/format";
+import { hostOf, timeAgo } from "@/lib/format";
 import { Icon } from "./Icon";
 import { SourceIcon } from "./SourceIcon";
 
@@ -16,62 +16,65 @@ function fmtDate(iso: string | null): string {
   }
 }
 
-// Sources under a thread — one quiet inline line of links, not a row of pills.
-function SourceLine({ cites }: { cites: BriefingCitation[] }) {
-  if (!cites.length) return null;
+// One source article — title + description — presented as a link (the item style
+// from the ranked list: source, time, headline, snippet).
+function Item({ c }: { c: BriefingCitation }) {
   return (
-    <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] text-md-on-surface-variant">
-      <span className="text-[11px] font-semibold uppercase tracking-[0.09em] text-md-on-surface-variant/55">
-        Sources
-      </span>
-      {cites.map((c) => (
-        <a
-          key={c.n}
-          href={c.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          title={c.title}
-          className="inline-flex items-center gap-1.5 underline-offset-4 transition-colors duration-200 ease-md-standard hover:text-md-on-surface hover:underline cursor-pointer"
-        >
-          <SourceIcon url={c.url} size={13} />
-          <span className="max-w-[180px] truncate">{hostOf(c.url)}</span>
-        </a>
-      ))}
-    </p>
-  );
-}
-
-// One thread as a typographic block — a themed heading, the substance, a blue
-// left-ruled "why it matters", then a quiet source line. Divided by hairlines,
-// never boxed. Threads are the BREAKDOWN of the overview above.
-function Thread({ t, byN }: { t: BriefingThread; byN: Map<number, BriefingCitation> }) {
-  const cites = t.sources
-    .map((n) => byN.get(n))
-    .filter((c): c is BriefingCitation => Boolean(c));
-  return (
-    <li className="border-t border-md-outline-variant/50 py-9 first:border-t-0 first:pt-0">
-      <h3 className="text-[19px] font-semibold leading-[1.35] tracking-[-0.01em] text-md-on-surface">
-        {t.title}
-      </h3>
-      {t.summary && (
-        <p className="mt-2.5 text-[16px] leading-[1.62] text-md-on-surface/85">{t.summary}</p>
-      )}
-      {t.so_what && (
-        <div className="mt-4 border-l-2 border-md-primary pl-4">
-          <span className="block text-[11px] font-semibold uppercase tracking-[0.09em] text-md-primary">
-            Why it matters
-          </span>
-          <p className="mt-1 text-[15px] leading-[1.55] text-md-on-surface">{t.so_what}</p>
+    <li className="border-t border-md-outline-variant/50 first:border-t-0">
+      <a
+        href={c.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group block py-4 cursor-pointer"
+      >
+        <div className="flex items-center gap-1.5 text-[12px] text-md-on-surface-variant/70">
+          <SourceIcon url={c.url} size={12} />
+          <span>{hostOf(c.url)}</span>
+          {c.published_at && <span>· {timeAgo(c.published_at)}</span>}
         </div>
-      )}
-      <SourceLine cites={cites} />
+        <h4 className="mt-1 text-[16px] font-medium leading-snug text-md-on-surface transition-colors duration-200 ease-md-standard group-hover:text-md-primary">
+          {c.title}
+        </h4>
+        {c.snippet && (
+          <p className="mt-1 text-[14px] leading-[1.55] text-md-on-surface-variant line-clamp-2">
+            {c.snippet}
+          </p>
+        )}
+      </a>
     </li>
   );
 }
 
-// The daily briefing, written through a persona's lens: an eyebrow, a lead-paragraph
-// OVERVIEW of the whole day, then the themed threads that break it down. The overview
-// reads as a summary (prose), not a giant headline competing with the thread titles.
+// A themed cluster (Web Guide group): the theme heading, a one-line "why it matters",
+// then the source items grouped under it.
+function Cluster({ t, byN }: { t: BriefingThread; byN: Map<number, BriefingCitation> }) {
+  const items = t.sources
+    .map((n) => byN.get(n))
+    .filter((c): c is BriefingCitation => Boolean(c));
+  if (!items.length) return null;
+  return (
+    <section className="mt-10 border-t border-md-outline-variant pt-7 first:mt-8">
+      <h3 className="text-[18px] font-semibold leading-snug tracking-[-0.01em] text-md-on-surface">
+        {t.title}
+      </h3>
+      {t.so_what && (
+        <p className="mt-2.5 border-l-2 border-md-primary pl-3.5 text-[14px] leading-[1.5] text-md-on-surface">
+          <span className="font-semibold text-md-primary">Why it matters&nbsp;&nbsp;</span>
+          {t.so_what}
+        </p>
+      )}
+      <ol className="mt-3.5">
+        {items.map((c) => (
+          <Item key={c.n} c={c} />
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+// The daily briefing as a Web Guide: a synthesised overview, then the day's sources
+// organised into themed clusters, with the items that don't group into a theme
+// collected under "More today" at the foot.
 export function DailyBriefing({
   briefing,
   personaName,
@@ -82,6 +85,9 @@ export function DailyBriefing({
   if (!briefing || (!briefing.threads.length && !briefing.lede)) return null;
 
   const byN = new Map(briefing.citations.map((c) => [c.n, c]));
+  const cited = new Set<number>();
+  briefing.threads.forEach((t) => t.sources.forEach((n) => cited.add(n)));
+  const loners = briefing.citations.filter((c) => !cited.has(c.n));
   const meta = [fmtDate(briefing.generated_at), `${briefing.article_count} sources`]
     .filter(Boolean)
     .join("  ·  ");
@@ -104,12 +110,24 @@ export function DailyBriefing({
         </p>
       )}
 
-      {briefing.threads.length > 0 && (
-        <ol className="mt-9 border-t border-md-outline-variant pt-1">
-          {briefing.threads.map((t, i) => (
-            <Thread key={i} t={t} byN={byN} />
-          ))}
-        </ol>
+      {briefing.threads.map((t, i) => (
+        <Cluster key={i} t={t} byN={byN} />
+      ))}
+
+      {loners.length > 0 && (
+        <section id="more" className="mt-12 scroll-mt-24 border-t border-md-outline-variant pt-7">
+          <h3 className="text-[13px] font-semibold uppercase tracking-[0.11em] text-md-on-surface-variant">
+            More today
+          </h3>
+          <p className="mt-1 text-[13px] text-md-on-surface-variant/70">
+            Ranked items that didn&rsquo;t group into a theme.
+          </p>
+          <ol className="mt-3.5">
+            {loners.map((c) => (
+              <Item key={c.n} c={c} />
+            ))}
+          </ol>
+        </section>
       )}
     </section>
   );
@@ -131,9 +149,9 @@ export function BriefingSkeleton() {
         {[0, 1, 2].map((s) => (
           <div key={s} className="space-y-3">
             <div className="h-5 w-52 rounded shimmer" />
+            <div className="ml-4 h-8 w-2/3 rounded shimmer" />
             <div className="h-4 w-full rounded shimmer" />
             <div className="h-4 w-5/6 rounded shimmer" />
-            <div className="ml-4 h-9 w-2/3 rounded shimmer" />
           </div>
         ))}
       </div>

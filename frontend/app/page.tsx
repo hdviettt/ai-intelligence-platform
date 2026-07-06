@@ -5,7 +5,6 @@ import { CorpusStrip } from "./components/CorpusStrip";
 import { Wordmark } from "./components/Wordmark";
 import { PersonaSwitcher } from "./components/PersonaSwitcher";
 import { DailyBriefing } from "./components/DailyBriefing";
-import { TodaysSignal } from "./components/TodaysSignal";
 import { SinceYouLastLooked } from "./components/SinceYouLastLooked";
 import { ThemeToggle } from "./components/ThemeToggle";
 
@@ -74,8 +73,8 @@ export default async function Home({
                 <a href="#brief" className="text-[13px] text-md-on-surface-variant transition-colors duration-200 hover:text-md-on-surface">
                   Today&rsquo;s brief
                 </a>
-                <a href="#signal" className="text-[13px] text-md-on-surface-variant transition-colors duration-200 hover:text-md-on-surface">
-                  Today&rsquo;s signal
+                <a href="#more" className="text-[13px] text-md-on-surface-variant transition-colors duration-200 hover:text-md-on-surface">
+                  More today
                 </a>
               </nav>
               <div className="space-y-2.5 border-t border-md-outline-variant pt-5">
@@ -87,11 +86,8 @@ export default async function Home({
             </div>
           </aside>
 
-          <div className="min-w-0">
-            <div id="brief" className="scroll-mt-24">
-              <DailyBriefing briefing={briefing} personaName={activeName} />
-            </div>
-            <TodaysSignal briefing={briefing} />
+          <div id="brief" className="min-w-0 scroll-mt-24">
+            <DailyBriefing briefing={briefing} personaName={activeName} />
           </div>
         </div>
 
