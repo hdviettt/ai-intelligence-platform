@@ -41,7 +41,7 @@ export default async function Home({
       {/* Slim, sticky header. Search is a persistent field here — always reachable,
           never the gate. The brief is the front door. */}
       <header className="sticky top-0 z-20 border-b border-md-outline-variant bg-md-background/85 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[960px] items-center gap-4 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-[860px] items-center gap-4 px-4 py-3 sm:px-6">
           <Wordmark />
           <div className="hidden flex-1 justify-center px-4 sm:flex">
             <div className="w-full max-w-sm">
@@ -57,13 +57,13 @@ export default async function Home({
         </div>
       </header>
 
-      <main className="mx-auto max-w-[960px] px-4 pb-24 sm:px-6">
+      <main className="mx-auto max-w-[860px] px-4 pb-24 sm:px-6">
         {/* The returning-habit hook: what changed since you last looked. */}
         <div className="py-5">
           <SinceYouLastLooked briefDate={briefing?.generated_at} />
         </div>
 
-        <div className="grid grid-cols-1 gap-x-16 lg:grid-cols-[180px_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-[168px_minmax(0,1fr)]">
           <aside className="hidden lg:block">
             <div className="sticky top-24 space-y-6">
               <nav className="flex flex-col items-start gap-2">

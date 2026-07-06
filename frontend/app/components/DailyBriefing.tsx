@@ -32,7 +32,7 @@ function Item({ c }: { c: BriefingCitation }) {
           <span>{hostOf(c.url)}</span>
           {c.published_at && <span>· {timeAgo(c.published_at)}</span>}
         </div>
-        <h4 className="mt-1 text-[16px] font-semibold leading-snug text-md-on-surface transition-colors duration-200 ease-md-standard group-hover:text-md-primary">
+        <h4 className="mt-1 text-[15px] font-medium leading-snug text-md-on-surface transition-colors duration-200 ease-md-standard group-hover:text-md-primary">
           {c.title}
         </h4>
         {c.snippet && (
@@ -54,13 +54,12 @@ function Cluster({ t, byN }: { t: BriefingThread; byN: Map<number, BriefingCitat
   if (!items.length) return null;
   return (
     <section className="mt-9 border-t border-md-outline-variant pt-6 first:mt-7">
-      <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-md-on-surface">
+      <h3 className="text-[12px] font-semibold uppercase tracking-[0.11em] text-md-on-surface-variant">
         {t.title}
       </h3>
       {t.so_what && (
-        <p className="mt-2 border-l-2 border-md-primary pl-3.5 text-[13px] leading-[1.5] text-md-on-surface-variant">
-          <span className="font-semibold text-md-primary">Why it matters&nbsp;&nbsp;</span>
-          {t.so_what}
+        <p className="mt-2 text-[13px] leading-[1.5] text-md-on-surface-variant">
+          <span className="font-medium text-md-on-surface">Why it matters.</span> {t.so_what}
         </p>
       )}
       <ol className="mt-3">
@@ -94,18 +93,16 @@ export function DailyBriefing({
 
   return (
     <section className="fade-up">
-      <div className="flex items-center gap-2.5">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-md-primary text-md-on-primary">
-          <Icon name="auto_awesome" size={15} filled />
-        </span>
+      <div className="flex items-center gap-2">
+        <Icon name="auto_awesome" size={14} className="text-md-on-surface-variant" />
         <span className="text-[11px] font-semibold uppercase tracking-[0.11em] text-md-on-surface-variant">
           Today&rsquo;s brief{personaName ? ` · ${personaName}` : ""}
         </span>
       </div>
-      {meta && <p className="mt-2 text-[13px] text-md-on-surface-variant/70">{meta}</p>}
+      {meta && <p className="mt-1.5 text-[13px] text-md-on-surface-variant/70">{meta}</p>}
 
       {briefing.lede && (
-        <p className="mt-4 max-w-[62ch] text-[16px] font-normal leading-[1.62] text-md-on-surface">
+        <p className="mt-4 text-[16px] font-normal leading-[1.62] text-md-on-surface">
           {briefing.lede}
         </p>
       )}
