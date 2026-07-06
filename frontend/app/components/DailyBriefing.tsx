@@ -32,11 +32,11 @@ function Item({ c }: { c: BriefingCitation }) {
           <span>{hostOf(c.url)}</span>
           {c.published_at && <span>· {timeAgo(c.published_at)}</span>}
         </div>
-        <h4 className="mt-1 text-[15px] font-medium leading-snug text-md-on-surface transition-colors duration-200 ease-md-standard group-hover:text-md-primary">
+        <h4 className="mt-1 text-[14px] font-medium leading-snug text-md-on-surface transition-colors duration-200 ease-md-standard group-hover:text-md-primary">
           {c.title}
         </h4>
         {c.snippet && (
-          <p className="mt-1 text-[13px] leading-[1.5] text-md-on-surface-variant line-clamp-2">
+          <p className="mt-0.5 text-[12.5px] leading-[1.5] text-md-on-surface-variant line-clamp-1">
             {c.snippet}
           </p>
         )}
@@ -53,16 +53,19 @@ function Cluster({ t, byN }: { t: BriefingThread; byN: Map<number, BriefingCitat
     .filter((c): c is BriefingCitation => Boolean(c));
   if (!items.length) return null;
   return (
-    <section className="mt-9 border-t border-md-outline-variant pt-6 first:mt-7">
-      <h3 className="text-[12px] font-semibold uppercase tracking-[0.11em] text-md-on-surface-variant">
+    <section className="mt-10 border-t border-md-outline-variant pt-7 first:mt-8">
+      <h3 className="text-[20px] font-semibold leading-tight tracking-[-0.015em] text-md-on-surface">
         {t.title}
       </h3>
+      {t.summary && (
+        <p className="mt-2.5 text-[15px] leading-[1.6] text-md-on-surface">{t.summary}</p>
+      )}
       {t.so_what && (
-        <p className="mt-2 text-[13px] leading-[1.5] text-md-on-surface-variant">
+        <p className="mt-2.5 text-[13px] leading-[1.5] text-md-on-surface-variant">
           <span className="font-medium text-md-on-surface">Why it matters.</span> {t.so_what}
         </p>
       )}
-      <ol className="mt-3">
+      <ol className="mt-5">
         {items.map((c) => (
           <Item key={c.n} c={c} />
         ))}
