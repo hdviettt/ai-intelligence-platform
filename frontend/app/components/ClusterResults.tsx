@@ -56,14 +56,15 @@ export function ClusterResults({
           <Result key={c.n} c={c} />
         ))}
       </ol>
-      {!expanded && items.length > initial && (
+      {items.length > initial && (
         <button
           type="button"
-          onClick={() => setExpanded(true)}
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
           className="mx-auto mt-3 flex w-fit cursor-pointer items-center gap-1 rounded-full border border-md-outline-variant px-4 py-1.5 text-[13px] font-medium text-md-on-surface-variant transition-colors duration-200 ease-md-standard hover:bg-md-surface-container hover:text-md-on-surface"
         >
-          More
-          <Icon name="expand_more" size={16} />
+          {expanded ? "Less" : `More (${items.length - initial})`}
+          <Icon name={expanded ? "expand_less" : "expand_more"} size={16} />
         </button>
       )}
     </>
