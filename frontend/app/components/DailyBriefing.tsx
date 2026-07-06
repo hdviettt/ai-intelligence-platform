@@ -1,7 +1,6 @@
 import type { Briefing, BriefingCitation, BriefingThread } from "@/lib/api";
-import { hostOf, timeAgo } from "@/lib/format";
 import { Icon } from "./Icon";
-import { SourceIcon } from "./SourceIcon";
+import { ClusterResults } from "./ClusterResults";
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "";
@@ -16,39 +15,9 @@ function fmtDate(iso: string | null): string {
   }
 }
 
-// One source article — title + description — presented as a link (the item style
-// from the ranked list: source, time, headline, snippet).
-function Item({ c }: { c: BriefingCitation }) {
-  return (
-    <li className="border-t border-md-outline-variant/50 first:border-t-0">
-      <a
-        href={c.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group block py-3 cursor-pointer"
-      >
-        <div className="flex items-center gap-1.5 text-[12px] text-md-on-surface-variant">
-          <SourceIcon url={c.url} size={13} />
-          <span>{hostOf(c.url)}</span>
-          {c.published_at && (
-            <span className="text-md-on-surface-variant/70">· {timeAgo(c.published_at)}</span>
-          )}
-        </div>
-        <h4 className="mt-0.5 text-[14px] font-medium leading-snug text-md-primary underline-offset-2 group-hover:underline">
-          {c.title}
-        </h4>
-        {c.snippet && (
-          <p className="mt-0.5 text-[12.5px] leading-[1.45] text-md-on-surface-variant line-clamp-2">
-            {c.snippet}
-          </p>
-        )}
-      </a>
-    </li>
-  );
-}
-
-// A themed cluster (Web Guide group): the theme heading, a one-line "why it matters",
-// then the source items grouped under it.
+// A themed cluster (Web Guide group): a heading, the summary (the "what"), a
+// "why it matters" line, then the source links grouped under it (3 + More). The
+// summary is the cluster's main content; the links read as smaller sources under it.
 function Cluster({ t, byN }: { t: BriefingThread; byN: Map<number, BriefingCitation> }) {
   const items = t.sources
     .map((n) => byN.get(n))
@@ -60,31 +29,14 @@ function Cluster({ t, byN }: { t: BriefingThread; byN: Map<number, BriefingCitat
         {t.title}
       </h3>
       {t.summary && (
-        <p className="mt-2 text-[14px] leading-[1.6] text-md-on-surface-variant">{t.summary}</p>
+        <p className="mt-2.5 text-[15px] leading-[1.6] text-md-on-surface">{t.summary}</p>
       )}
       {t.so_what && (
         <p className="mt-2 text-[13px] leading-[1.5] text-md-on-surface-variant">
           <span className="font-medium text-md-on-surface">Why it matters.</span> {t.so_what}
         </p>
       )}
-      <ol className="mt-4">
-        {items.slice(0, 3).map((c) => (
-          <Item key={c.n} c={c} />
-        ))}
-      </ol>
-      {items.length > 3 && (
-        <details className="group">
-          <summary className="mx-auto mt-2 flex w-fit cursor-pointer items-center gap-1 rounded-full border border-md-outline-variant px-4 py-1.5 text-[13px] font-medium text-md-on-surface-variant transition-colors duration-200 ease-md-standard hover:bg-md-surface-container hover:text-md-on-surface">
-            More
-            <Icon name="expand_more" size={16} className="details-chevron" />
-          </summary>
-          <ol>
-            {items.slice(3).map((c) => (
-              <Item key={c.n} c={c} />
-            ))}
-          </ol>
-        </details>
-      )}
+      <ClusterResults items={items} />
     </section>
   );
 }
@@ -137,11 +89,7 @@ export function DailyBriefing({
           <p className="mt-1 text-[12px] text-md-on-surface-variant/70">
             Ranked items that didn&rsquo;t group into a theme.
           </p>
-          <ol className="mt-3">
-            {loners.map((c) => (
-              <Item key={c.n} c={c} />
-            ))}
-          </ol>
+          <ClusterResults items={loners} initial={4} />
         </section>
       )}
     </section>
